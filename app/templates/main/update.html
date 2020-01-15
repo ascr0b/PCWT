@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+	    <title>Update</title>
+		<link rel="stylesheet" href="/static/css/bootstrap.min.css">	
+		<!-- jQuery library -->
+		<script src="/static/scripts/jquery.min.js"></script>
+
+		<!-- Popper JS -->
+		<script src="/static/scripts/popper.min.js"></script>
+
+		<!-- Latest compiled JavaScript -->
+		<script src="/static/scripts/bootstrap.min.js"></script>
+
+		<script src="/static/scripts/update.js"></script>
+
+	</head>
+
+	{% include 'header.html' %}
+
+	<div class="container">
+		<h3 style="text-align: center;">Uploading new files to project: {{ name }}</h3>
+		<form action="/update" method="POST" enctype="multipart/form-data">
+			<div class="form-group">
+				<input class="form-control" name="id" type="hidden" value="{{ id }}">
+		    	<div class="custom-file form-control" style="margin-bottom: 1%">
+		        	<input type="file" class="custom-file-input" name="nmapFile" id="customFile" onchange="document.getElementById('customFileLabel1').innerHTML = this.files[0].name">
+		        	<label class="custom-file-label" for="customFile" id="customFileLabel1">Choose NMAP XML file</label>
+		      	</div>
+		      	<div class="custom-file form-control" style="margin-bottom: 1%">
+		        	<input type="file" class="custom-file-input" name="masscanFile" id="customFile" onchange="document.getElementById('customFileLabel2').innerHTML = this.files[0].name">
+		        	<label class="custom-file-label" for="customFile" id="customFileLabel2">Choose MASSCAN XML file</label>
+		      	</div>
+		      	<div class="custom-file form-control" style="margin-bottom: 1%">
+		        	<input type="file" class="custom-file-input" name="domainFile" id="customFile" onchange="document.getElementById('customFileLabel3').innerHTML = this.files[0].name">
+		        	<label class="custom-file-label" for="customFile" id="customFileLabel3">Choose DOMAIN:IP file</label>
+		      	</div>
+		      	<div class="form-group">
+		      		<button class="btn btn-secondary" type="submit">Submit</button>
+		      	</div>
+			</div>
+		</form>
+		
+		{% if success %}
+		<p class="text-success" style="text-align: center;" >SUCCESS: {{ success }}</p>
+		{% endif %}
+
+		{% for error in errors %}
+		<p class="text-danger" style="text-align: center;">ERORR: {{ error }}</p>
+		{% endfor %}
+
+		{% for warn in warnings %}
+		<p class="text-warning" style="text-align: center;">WARNING: {{ warn }}</p>
+		{% endfor %}
+
+		<div class="row">
+			<!-- add host -->
+			<div class="col">
+				<h3 style="text-align: center;">Add host</h3>
+				<form id="formHost" method="POST">
+					<input type="hidden" name="id" value="{{ id }}">
+		  			<div class="form-group">
+		  				<input type="text" class="form-control" placeholder="IP"  name="ip" required>
+		  			</div>
+		  			<div id="addHost">
+			  			<div class="port">
+				  			<div class="form-group">
+								<input type="text" class="form-control" placeholder="Port" name="port" required>
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control" placeholder="Service" name="service" required>
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control" placeholder="Product" name="Product">
+							</div>
+						</div>
+					</div>	
+					<button type="button" class="btn btn-primary btn-info" id="delete" onclick="deleteBlock()">Delete port</button>
+					<button type="button" class="btn btn-primary btn-info" id="add" onclick="addBlock()">Add port</button>	
+			  		<button type="button" class="btn btn-primary btn-secondary" onclick="submitHost()">Submit</button>
+				</form>
+				</br>
+				<p class="text-success" style="text-align: center;" id="successh"></p>
+				<p class="text-danger" style="text-align: center;" id="errorh"></p>
+			</div>
+
+			<!-- add domain -->
+			<div class="col">
+				<h3 style="text-align: center;">Add Domain</h3>
+				<form id="formDomain">
+					<input type="hidden" name="id" value="{{ id }}">
+		  			<div class="form-group">
+		  				<input type="text" class="form-control" placeholder="Domain" name="domain" required>
+		  			</div>
+		  			<div class="form-group">
+						<input type="text" class="form-control" placeholder="IP" name="ip" required>
+					</div>
+		  			<button type="button" class="btn btn-primary btn-secondary" onclick="submitDomain()">Submit</button>
+				</form>
+				</br>
+				<p class="text-success" style="text-align: center;" id="successd"></p>
+				<p class="text-danger" style="text-align: center;" id="errord"></p>
+			</div>
+
+
+		</div>
+
+	</div>
+
+
+	</body>
+</html>

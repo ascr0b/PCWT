@@ -1,0 +1,23 @@
+<div class="form-popup" id="hostUpdateForm">
+	<form class="form-container" >
+    	<div class="form-group">
+    		<input type="hidden" name="note" id="hostUpdateID" value="">
+    		<label for="hostUpdateNote"><i>Host Note:</i></label>
+    		<textarea class="form-control" rows="5" id="hostUpdateNote" name="note"></textarea>
+    	</div>
+    	<button type="button" class="btn btn-info" onclick="updateHostNote()">Submit</button>
+    	<button type="button" class="btn" onclick="closeHostUpdateForm()">Close</button>
+  </form>	
+</div>
+
+<div class="form-popup" id="portUpdateForm">
+	<form class="form-container" >
+    	<div class="form-group">
+	   		<input type="hidden" name="note" id="portUpdateID" value="">
+	   		<label for="portUpdateNote"><i>Port Note:</i></label>
+    		<textarea class="form-control" rows="5" id="portUpdateNote" name="note"></textarea>
+    	</div>
+    	<button type="button" class="btn btn-info" onclick="updatePortNote()">Submit</button>
+    	<button type="button" class="btn cancel" onclick="closePortUpdateForm()">Close</button>
+	</form>	
+</div>

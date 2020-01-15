@@ -1,0 +1,28 @@
+{% if domain.style == "Hacked" %}
+<td id="{{ domain.id }}_style" style="width: 10%">	
+	<span class="badge badge-pill badge-danger">
+		Hacked
+	</span> 
+</td>
+{% endif %}
+
+{% if domain.style == "Checked" %}
+<td  id="{{ domain.id }}_style" style="width: 10%">	
+	<span class="badge badge-pill badge-secondary">
+		Checked
+	</span> 
+</td>
+{% endif %}
+
+{% if domain.style == "Suspicious" %}
+<td id="{{ domain.id }}_style" style="width: 10%">	
+	<span class="badge badge-pill badge-warning">
+		Suspicious
+	</span> 
+</td>
+{% endif %}
+
+{% if domain.style == "Default" %}
+<td id="{{ domain.id }}_style" style="width: 10%">	
+</td>
+{% endif %}

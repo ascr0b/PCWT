@@ -1,0 +1,46 @@
+{% extends 'main/base.html' %}
+
+
+{% block content %}
+	<div class="container">
+		<h3 style="text-align: center;">New project</h3>
+		<form action="/new" method="POST" enctype="multipart/form-data">
+			<div class="form-group">
+				<input class="form-control" name="projectName" placeholder="Project name" value="">
+		    	</div>
+		    	<div class="custom-file form-control" style="margin-bottom: 1%">
+		        	<input type="file" class="custom-file-input" name="nmapFile" id="customFile" onchange="document.getElementById('customFileLabel1').innerHTML = this.files[0].name">
+		        	<label class="custom-file-label" for="customFile" id="customFileLabel1">Choose NMAP XML file</label>
+		      	</div>
+		      	<div class="custom-file form-control" style="margin-bottom: 1%">
+		        	<input type="file" class="custom-file-input" name="masscanFile" id="customFile" onchange="document.getElementById('customFileLabel2').innerHTML = this.files[0].name">
+		        	<label class="custom-file-label" for="customFile" id="customFileLabel2">Choose MASSCAN XML file</label>
+		      	</div>
+		      	<div class="custom-file form-control" style="margin-bottom: 1%">
+		        	<input type="file" class="custom-file-input" name="domainFile" id="customFile" onchange="document.getElementById('customFileLabel3').innerHTML = this.files[0].name">
+		        	<label class="custom-file-label" for="customFile" id="customFileLabel3">Choose DOMAIN:IP file</label>
+		      	</div>
+		      	<div class="form-group">
+		      		<button class="btn btn-secondary" type="submit">Submit</button>
+		      	</div>
+			</div>
+		</form>
+
+		{% if success %}
+		<p class="text-success" style="text-align: center;">SUCCESS: {{ success }}. You will be redirected to main page in 3 seconds.</p>
+		<script type="text/javascript">
+			window.setTimeout(function() {
+        		window.location.href = "/";
+   			 }, 3000);
+		</script>
+		{% endif %}
+
+		{% for error in errors %}
+		<p class="text-danger" style="text-align: center;">ERORR: {{ error }}</p>
+		{% endfor %}
+
+		{% for warn in warnings %}
+		<p class="text-warning" style="text-align: center;">WARNING: {{ warn }}</p>
+		{% endfor %}
+	</div>
+{% endblock %}

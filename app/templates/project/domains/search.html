@@ -1,0 +1,42 @@
+<div class="container">
+	<table class="table table-borderless">
+		<tbody>
+			<tr>
+				<td style="width: 20%">
+					<div class="form-inline">
+						<label class="mr-sm-2" for="sel1">Select limit:</label>
+						<select class="form-control mb-2 mr-sm-2" id="sel1" onchange="window.location.href = '/project/domains?id={{ scan.id }}&limit=' + this.value + '&page=1&type={{ type }}&search={{ search }}'">
+							<option style="display: none;">0</option>
+							<option>10</option>
+							<option>20</option>
+							<option>30</option>
+							<option>50</option>
+							<option>100</option>
+						</select>
+					</div>
+				</td>
+				<td style="width: 25%">
+					<div class="form-inline">
+						<label class="mr-sm-2" for="sel2">Select type:</label>
+						<select class="form-control mb-2 mr-sm-2" id="sel2" onchange="window.location.href = '/project/domains?id={{ scan.id }}&limit={{ limit }}&page=1&type=' + this.value + '&search={{ search }}'">
+							<option style="display: none;">None</option>
+							<option>Checked</option>
+							<option>Hacked</option>
+							<option>Suspicious</option>
+							<option>Default</option>
+							<option>All</option>
+						</select>
+					</div>
+				</td>
+				<td style="padding-right: 5%">
+					<form class="form-inline" action="/project/domains">
+				  		<label for="search" class="mr-sm-2">Search by domain/ip/note:</label>
+				  		<input type="hidden" name="id" value="{{ scan.id }}"> 
+				  		<input type="text" id="search" class="form-control mb-2 mr-sm-2" name="search">
+				  		<button type="submit" class="btn btn-secondary mb-2">Submit</button>
+			  		</form>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

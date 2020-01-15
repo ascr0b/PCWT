@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+	    <title>Port</title>
+		<link rel="stylesheet" href="/static/css/bootstrap.min.css">
+
+		<!-- jQuery library -->
+		<script src="/static/scripts/jquery.min.js"></script>
+
+		<!-- Popper JS -->
+		<script src="/static/scripts/popper.min.js"></script>
+
+		<!-- Latest compiled JavaScript -->
+		<script src="/static/scripts/bootstrap.min.js"></script>
+		<script type="text/javascript">
+			function hideOpen(id) {
+				var status = document.getElementsByClassName(id)[0].getAttribute("style");
+				if (status == "display: none;") {
+					for (var i = 0; i < document.getElementsByClassName(id).length; i++) {
+						document.getElementsByClassName(id)[i].setAttribute("style", "display: visible;");
+					}
+				} else {
+					for (var i = 0; i < document.getElementsByClassName(id).length; i++) {
+						document.getElementsByClassName(id)[i].setAttribute("style", "display: none;");
+					}	
+				}
+				
+			} 
+			function openAll() {
+				for (var i = 0; i < document.getElementsByClassName("ips").length; i++) {
+					document.getElementsByClassName("ips")[i].setAttribute("style", "display: visible;");
+				}
+			}
+			function closeAll() {
+				for (var i = 0; i < document.getElementsByClassName("ips").length; i++) {
+					document.getElementsByClassName("ips")[i].setAttribute("style", "display: none;");
+				}
+			}
+			function searchPort(e) {
+				if (e.keyCode == 13) {
+					window.location.hash = document.getElementById('port_search').value;
+				}
+			}
+		</script>
+		<style>
+			.topNubex {
+				position: fixed;
+				left: 45px;
+				bottom: 45px;
+			}
+			.topNubex1 {
+				position: fixed;
+				right: 45px;
+				bottom: 45px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="btn-group topNubex">
+			<button class="btn btn-info "><a href="#" style="color: white">UP</a></button>
+			<button class="btn btn-info" onclick="openAll()">Open All</button>
+			<button class="btn btn-info" onclick="closeAll()">Close All</button>
+		</div>
+
+		<div class="form-inline topNubex1">
+			<input type="text" name="port_search" placeholder="Port №" class="form-control" id="port_search" style="width: 150px;" onkeypress="return searchPort(event)" />
+		</div>
+		
+		{% include 'header.html' %}	
+
+		<h2 style="text-align: center">{{ scan.name }}</h2>
+		<div class="container">
+			{% for port in scan.ports %}
+			<div class="row" style="text-align: center">
+
+				<table class="table table-bordered table-hover" >
+					<tbody>
+						<tr>
+							<td id="{{ port.port }}" onclick="hideOpen(this.id + '_ips')"><h5>{{ port.port }}   <span class="badge badge-pill badge-info">{{ port.amount }}</span></h5></td>
+								{% for ip in port.hosts %}
+								<tr class="{{ port.port}}_ips ips" style="display: none;">
+									<td><a href="/project/hosts?id={{ scan.id }}&search={{ ip }}">{{ ip }}</a></td>
+								</tr>
+								{% endfor %}
+							</div>		
+						</tr>
+						
+					</tbody>
+				</table>
+			</div>
+			{% endfor %}
+		</div>
+	</body>
+</html>

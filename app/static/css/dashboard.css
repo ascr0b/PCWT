@@ -1,0 +1,21 @@
+.form-popup {
+	display: none;
+	position: fixed;
+	left: 30%;
+	top: 35%;
+	margin-top: -2em;
+	width: 40%;
+	border: 3px solid #f1f1f1;
+	z-index: 9;
+}
+.form-container {
+	padding: 10px;
+	background-color: white;
+}
+.form-container input[type=textarea]  {
+	width: 100%;
+	padding: 15px;
+	margin: 5px 0 22px 0;
+	border: none;
+	background: #f1f1f1;
+}

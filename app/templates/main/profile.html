@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+	    <title>Profile</title>
+		<link rel="stylesheet" href="/static/css/bootstrap.min.css">	
+		<!-- jQuery library -->
+		<script src="/static/scripts/jquery.min.js"></script>
+
+		<!-- Popper JS -->
+		<script src="/static/scripts/popper.min.js"></script>
+
+		<!-- Latest compiled JavaScript -->
+		<script src="/static/scripts/bootstrap.min.js"></script>
+
+	</head>
+
+	{% include 'header.html' %}
+
+	<div class="container">
+		<h3 style="text-align: center;">Change password</h3>
+		<form action="/profile" method="POST">
+  			<div class="form-group">
+  				<input type="password" class="form-control" placeholder="Enter old password" id="oldpwd" name="oldpwd" required>
+  			</div>
+  			<div class="form-group">
+				<input type="password" class="form-control" placeholder="Enter new password" id="pwd" name="pwd" required>
+			</div>
+			<div class="form-group">
+				<input type="password" class="form-control" placeholder="Confirm new password" id="pwdconfirm" name="pwdconfirm" required>
+			</div>
+
+  			<button type="submit" class="btn btn-primary btn-secondary">Submit</button>
+		</form>
+		
+		{% if success %}
+		<p class="text-success" style="text-align: center;">SUCCESS: Password was successfully updated</p>
+		{% endif %}
+
+		{% for error in errors %}
+		<p class="text-danger" style="text-align: center;">ERORR: {{ error }}</p>
+		{% endfor %}
+
+	</div>
+
+
+	</body>
+</html>
