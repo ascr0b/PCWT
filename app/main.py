@@ -6,7 +6,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import xml.etree.ElementTree as ET
 import uuid
 import re
-
+import random
+import string
 from app.auth import login_required
 from app.db import get_db
 
@@ -22,41 +23,12 @@ def index():
 	).fetchall()
 	return render_template('main/main.html', username=session['username'], rows=projects)
 
-@bp.route('/profile', methods = ['GET', 'POST'])
+@bp.route('/profile', methods = ['GET'])
 @login_required
 def profile():
-	if request.method == 'GET':
-		return render_template('main/profile.html', username=session['username'])
-	db = get_db()
-	errors = []
-	oldpwd = request.form['oldpwd']
-	pwd = request.form['pwd']
-	pwdconfirm = request.form['pwdconfirm']
-
-	user = db.execute(
-		'SELECT password FROM users WHERE username = ?',
-		(session['username'], )
-	).fetchone()
-
-	if not oldpwd or not pwd or not pwdconfirm:
-		errors.append('All fields must be filled')
-
-	if not check_password_hash(user['password'], oldpwd):
-		errors.append('Incorrect current password')
-
-	if pwd != pwdconfirm:
-		errors.append('New passwords do not match')
-
-	if errors:
-		return render_template('main/profile.html', username=session['username'], errors=errors)
-
-	db.execute(
-		'UPDATE users SET password = ? WHERE username = ?',
-		(generate_password_hash(pwd), session['username'], )
-	)
-	db.commit()
-
-	return render_template('main/profile.html', username=session['username'], success=True)	
+	id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(64))
+	return render_template('main/profile.html', username=session['username'], id=id)
+	
 
 
 @bp.route('/new', methods = ['GET', 'POST'])

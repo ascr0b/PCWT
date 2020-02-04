@@ -7,7 +7,7 @@ def create_app(test_config=None):
 	app = Flask(__name__, instance_relative_config=True)
 	#csrf = CSRFProtect(app)
 	app.config.from_mapping(
-		SECRET_KEY='change it',
+		SECRET_KEY='19e66da7f8e6feeba6e74bf01dd5fa31',
 		DATABASE=os.path.join(app.instance_path, 'scans.sqlite')
 	)
 

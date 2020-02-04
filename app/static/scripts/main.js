@@ -15,7 +15,7 @@ function del(id) {
         }
     }
 
-    xhttp.open("POST", "/project/delete", true);
+    xhttp.open("POST", "/api/delete", true);
     xhttp.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
     xhttp.send(JSON.stringify({"id" : id }));
 }

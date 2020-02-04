@@ -1,6 +1,7 @@
 from flask import (
 	Blueprint, flash, g, redirect, render_template, request, session, escape, Markup, Response
 )
+from werkzeug.security import check_password_hash, generate_password_hash
 import json
 import markdown
 import bleach
@@ -390,3 +391,110 @@ def addDomain():
 
 	db.commit()
 	return Response(json.dumps({"status": "success"}), mimetype='application/json')			
+
+
+###########################################
+@bp.route('/changepass', methods = ['POST'])
+@login_required
+def changePass():
+	db = get_db()
+	errors = []
+	oldpwd = request.get_json()['oldpwd']
+	pwd = request.get_json()['pwd']
+	pwdconfirm = request.get_json()['pwdconfirm']
+
+	user = db.execute(
+		'SELECT password FROM users WHERE username = ?',
+		(session['username'], )
+	).fetchone()
+
+	if not oldpwd or not pwd or not pwdconfirm:
+		return Response(json.dumps({"status": "error", "msg" : "All fields must be filled"}), mimetype='application/json')
+
+	if not check_password_hash(user['password'], oldpwd):
+		return Response(json.dumps({"status": "error", "msg" : "Incorrect current password"}), mimetype='application/json')
+
+	if pwd != pwdconfirm:
+		return Response(json.dumps({"status": "error", "msg" : "New passwords do not match"}), mimetype='application/json')
+
+	db.execute(
+		'UPDATE users SET password = ? WHERE username = ?',
+		(generate_password_hash(pwd), session['username'], )
+	)
+	db.commit()
+
+	return Response(json.dumps({"status": "success", "msg" : "Password was successfully updated"}), mimetype='application/json')
+###########################################	
+
+
+@bp.route('/delete', methods = ['POST'])
+@login_required
+def delproject():
+	db = get_db()
+	projectid = request.get_json()['id']
+
+	project = db.execute(
+		'SELECT id, name FROM projects WHERE id = ? and owner = ?',
+		(projectid, session['username'], )
+	).fetchone()
+
+	if not project:
+		return Response(json.dumps({"status": "not found"}), mimetype='application/json')
+
+	delete(db, projectid)
+
+	db.commit()
+	return Response(json.dumps({"status": "success"}), mimetype='application/json')
+
+@bp.route('/deleteuser', methods = ['POST'])
+@login_required
+def deluser():
+	db = get_db()
+
+	projects = db.execute(
+		'SELECT id FROM projects WHERE owner = ?',
+		(session['username'], )
+	).fetchall()
+
+	for project in projects:
+		delete(db, project["id"])
+
+	db.execute(
+		'DELETE FROM users WHERE username = ?',
+		(session['username'], )
+	)
+
+	session.clear()	
+	db.commit()
+	return Response(json.dumps({"status": "success"}), mimetype='application/json')
+
+
+def delete(db, projectid):
+	hosts = db.execute(
+		'SELECT * FROM hosts WHERE project = ?',
+		(projectid,)
+	).fetchall()
+
+	# delete ports
+	for host in hosts:
+		db.execute(
+			'DELETE FROM ports WHERE host = ?',
+			(host['id'], )
+		)
+	# delete hosts	
+	db.execute(
+		'DELETE FROM hosts WHERE project = ?',
+		(projectid, )
+	)
+
+	# delete domains
+	db.execute(
+		'DELETE FROM domains WHERE project = ?',
+		(projectid, )
+	)
+
+	# delete project
+	db.execute(
+		'DELETE FROM projects WHERE id = ?',
+		(projectid, )
+	)

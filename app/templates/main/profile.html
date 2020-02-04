@@ -12,14 +12,22 @@
 
 		<!-- Latest compiled JavaScript -->
 		<script src="/static/scripts/bootstrap.min.js"></script>
-
+		<script src="/static/scripts/profile.js"></script>
+		<style>
+			.center {
+				text-align: center;
+			}
+			.danger {
+				 margin-left: 40%;
+			}
+		</style>
 	</head>
 
 	{% include 'header.html' %}
 
 	<div class="container">
 		<h3 style="text-align: center;">Change password</h3>
-		<form action="/profile" method="POST">
+		<form>
   			<div class="form-group">
   				<input type="password" class="form-control" placeholder="Enter old password" id="oldpwd" name="oldpwd" required>
   			</div>
@@ -30,19 +38,36 @@
 				<input type="password" class="form-control" placeholder="Confirm new password" id="pwdconfirm" name="pwdconfirm" required>
 			</div>
 
-  			<button type="submit" class="btn btn-primary btn-secondary">Submit</button>
+  			<button type="button" class="btn btn-primary btn-secondary" onclick="changePass()">Submit</button>
 		</form>
 		
-		{% if success %}
-		<p class="text-success" style="text-align: center;">SUCCESS: Password was successfully updated</p>
-		{% endif %}
+		<p class="text-success center" id="success" style="display: none"></p>
 
-		{% for error in errors %}
-		<p class="text-danger" style="text-align: center;">ERORR: {{ error }}</p>
-		{% endfor %}
+		<p class="text-danger center" id="error" style="display: none"></p>
 
 	</div>
 
+	</br>
+	</br>
+	</br>
+
+	<div class="container border">
+		</br>
+		<div class="row">
+			<div class="col">
+				<button type="button" class="btn btn-danger btn-lg danger" onclick="del('{{ id }}')">Delete the account</button>
+			</div>
+		</div>
+		</br>
+		<div class="row">
+			<div class="col">
+				<h5 style="text-align: center;">
+					Your account and all your projects will be permanently deleted.
+				</h5>
+			</div>
+			
+		</div>
+	</div>
 
 	</body>
 </html>

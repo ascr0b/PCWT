@@ -15,7 +15,7 @@ def signup():
 		return redirect('/')
 
 	if request.method == 'POST':
-		username = request.form['username']
+		username = request.form['username'].lower()
 		password = request.form['password']
 		db = get_db()
 		error = None
@@ -48,7 +48,7 @@ def signin():
 		return redirect('/')
 
 	if request.method == 'POST':
-		username = request.form['username']
+		username = request.form['username'].lower()
 		password = request.form['password']
 		db = get_db()
 		error = None

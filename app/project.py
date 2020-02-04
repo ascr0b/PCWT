@@ -240,50 +240,5 @@ def domains():
 	return render_template('project/domains.html', username=session['username'], scan=scan, limit=limit, page=page, search=search, type=style, pages=pages)
 
 
-@bp.route('/delete', methods = ['POST'])
-@login_required
-def delete():
-	db = get_db()
-	projectid = request.get_json()['id']
-
-	project = db.execute(
-		'SELECT id, name FROM projects WHERE id = ? and owner = ?',
-		(projectid, session['username'], )
-	).fetchone()
-
-	if not project:
-		return Response(json.dumps({"status": "not found"}), mimetype='application/json')
-
-	hosts = db.execute(
-		'SELECT * FROM hosts WHERE project = ?',
-		(projectid,)
-	).fetchall()
-
-	# delete ports
-	for host in hosts:
-		db.execute(
-			'DELETE FROM ports WHERE host = ?',
-			(host['id'], )
-		)
-	# delete hosts	
-	db.execute(
-		'DELETE FROM hosts WHERE project = ?',
-		(projectid, )
-	)
-
-	# delete domains
-	db.execute(
-		'DELETE FROM domains WHERE project = ?',
-		(projectid, )
-	)
-
-	# delete project
-	db.execute(
-		'DELETE FROM projects WHERE id = ?',
-		(projectid, )
-	)
-
-	db.commit()
-	return Response(json.dumps({"status": "success"}), mimetype='application/json')
 
 
