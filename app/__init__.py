@@ -7,7 +7,7 @@ def create_app(test_config=None):
 	app = Flask(__name__, instance_relative_config=True)
 	#csrf = CSRFProtect(app)
 	app.config.from_mapping(
-		SECRET_KEY='19e66da7f8e6feeba6e74bf01dd5fa31',
+		SECRET_KEY='change it',
 		DATABASE=os.path.join(app.instance_path, 'scans.sqlite')
 	)
 
@@ -36,6 +36,9 @@ def create_app(test_config=None):
 
 	from . import project
 	app.register_blueprint(project.bp)
+
+	from . import export
+	app.register_blueprint(export.bp)
 
 	from . import api
 	app.register_blueprint(api.bp)

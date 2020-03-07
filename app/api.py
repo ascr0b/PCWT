@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import json
 import markdown
 import bleach
+import tldextract
 from bleach_whitelist import markdown_tags, markdown_attrs
 import uuid
 import re
@@ -378,9 +379,11 @@ def addDomain():
 
 	if checkIfExists is None:
 		domainid = str(uuid.uuid4())
+		ext = tldextract.extract(domain)
+		lvl = ext[1] + "." + ext[2]
 		db.execute(
-			'INSERT INTO domains (id, domain, ip, note, style, project) VALUES (?, ?, ?, ?, ?, ?)',
-			(domainid, domain, ip, "", "Default", project)
+			'INSERT INTO domains (id, domain, lvl, ip, note, style, project) VALUES (?, ?, ?, ?, ?, ?, ?)',
+			(domainid, domain, lvl, ip, "", "Default", project)
 		)	
 	else:
 		domainid = checkIfExists['id']

@@ -2,10 +2,6 @@ bleach==3.1.0
 bleach-whitelist==0.0.10
 Click==7.0
 Flask==1.1.1
-itsdangerous==1.1.0
 Jinja2==2.10.3
 Markdown==3.1.1
-MarkupSafe==1.1.1
-six==1.13.0
-webencodings==0.5.1
-Werkzeug==0.16.0
+tldextract==2.2.2

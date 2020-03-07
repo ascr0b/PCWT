@@ -7,7 +7,9 @@ from flask.cli import with_appcontext
 
 
 def regexp(expr, item):
-    reg = re.compile(expr)
+    reg = re.compile(expr, re.IGNORECASE)
+    if not item:
+    	return None
     return reg.search(item) is not None
 
 

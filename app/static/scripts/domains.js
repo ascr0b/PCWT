@@ -79,6 +79,10 @@ function markAs(domainid, type) {
 }
 
 function deleteDomain(domainid) {
+	var bool = confirm("Are you sure?");
+	if (bool === false) {
+		return "";
+	}
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (xhttp.readyState == 4 && xhttp.status == 200) {

@@ -2,10 +2,10 @@
 	<table class="table table-borderless">
 		<tbody>
 			<tr>
-				<td style="width: 20%">
+				<td>
 					<div class="form-inline">
-						<label class="mr-sm-2" for="sel1">Select limit:</label>
-						<select class="form-control mb-2 mr-sm-2" id="sel1" onchange="window.location.href = '/project/domains?id={{ scan.id }}&limit=' + this.value + '&page=1&type={{ type }}&search={{ search }}'">
+						<label class="mr-sm-2" for="sel1">Limit:</label>
+						<select class="custom-select form-control mb-2 mr-sm-2" id="sel1" onchange="window.location.href = '/project/domains?id={{ scan.id }}&limit=' + this.value + '&page=1&type={{ type }}&order={{ order }}&search={{ search }}'">
 							<option style="display: none;">0</option>
 							<option>10</option>
 							<option>20</option>
@@ -15,10 +15,10 @@
 						</select>
 					</div>
 				</td>
-				<td style="width: 25%">
+				<td>
 					<div class="form-inline">
-						<label class="mr-sm-2" for="sel2">Select type:</label>
-						<select class="form-control mb-2 mr-sm-2" id="sel2" onchange="window.location.href = '/project/domains?id={{ scan.id }}&limit={{ limit }}&page=1&type=' + this.value + '&search={{ search }}'">
+						<label class="mr-sm-2" for="sel2">Type:</label>
+						<select class="custom-select form-control mb-2 mr-sm-2" id="sel2" onchange="window.location.href = '/project/domains?id={{ scan.id }}&limit={{ limit }}&page=1&type=' + this.value + '&order={{ order }}&search={{ search }}'">
 							<option style="display: none;">None</option>
 							<option>Checked</option>
 							<option>Hacked</option>
@@ -28,12 +28,21 @@
 						</select>
 					</div>
 				</td>
-				<td style="padding-right: 5%">
+				<td>
+					<div class="form-inline">
+						<label class="mr-sm-2" for="sel2">Order:</label>
+						<select class="custom-select form-control mb-2 mr-sm-2" id="sel2" onchange="window.location.href = '/project/domains?id={{ scan.id }}&limit={{ limit }}&page=1&type={{ type }}&order=' + this.value + '&search={{ search }}'">
+							<option style="display: none;">None</option>
+							<option>IP</option>
+							<option>Domain</option>
+						</select>
+					</div>
+				</td>
+				<td >
 					<form class="form-inline" action="/project/domains">
-				  		<label for="search" class="mr-sm-2">Search by domain/ip/note:</label>
+				  		<label for="search" class="mr-sm-2"></label>
 				  		<input type="hidden" name="id" value="{{ scan.id }}"> 
-				  		<input type="text" id="search" class="form-control mb-2 mr-sm-2" name="search">
-				  		<button type="submit" class="btn btn-secondary mb-2">Submit</button>
+				  		<input type="text" id="search" class="form-control mb-2 mr-sm-2" name="search" placeholder="Search by domain/ip/note">
 			  		</form>
 				</td>
 			</tr>

@@ -5,7 +5,7 @@
 				<td >
 					<div class="form-inline">
 						<label class="mr-sm-2" for="sel1">Limit:</label>
-						<select class="form-control mb-2 mr-sm-2" id="sel1" onchange="window.location.href = '/project/hosts?id={{ scan.id }}&limit=' + this.value + '&page=1&type={{ type }}&noports={{ noports }}&search={{ search }}'">
+						<select class="custom-select form-control mb-2 mr-sm-2" id="sel1" onchange="window.location.href = '/project/hosts?id={{ scan.id }}&limit=' + this.value + '&page=1&type={{ type }}&noports={{ noports }}&search={{ search }}'">
 							<option style="display: none;">0</option>
 							<option>10</option>
 							<option>20</option>
@@ -18,7 +18,7 @@
 				<td >
 					<div class="form-inline">
 						<label class="mr-sm-2" for="sel2">Type:</label>
-						<select class="form-control mb-2 mr-sm-2" id="sel2" onchange="window.location.href = '/project/hosts?id={{ scan.id }}&limit={{ limit }}&page=1&type=' + this.value + '&noports={{ noports }}&search={{ search }}'">
+						<select class="custom-select form-control mb-2 mr-sm-2" id="sel2" onchange="window.location.href = '/project/hosts?id={{ scan.id }}&limit={{ limit }}&page=1&type=' + this.value + '&noports={{ noports }}&search={{ search }}'">
 							<option style="display: none;">None</option>
 							<option>Checked</option>
 							<option>Hacked</option>
@@ -31,19 +31,18 @@
 				<td title="Checks if host has open ports">
 					<div class="form-inline" >
 						<label class="mr-sm-2" for="sel2">No ports:</label>
-						<select class="form-control mb-2 mr-sm-2" id="sel2" onchange="window.location.href = '/project/hosts?id={{ scan.id }}&limit={{ limit }}&page=1&type={{ type }}&noports=' + this.value + '&search={{ search }}'">
+						<select class="custom-select form-control mb-2 mr-sm-2" id="sel2" onchange="window.location.href = '/project/hosts?id={{ scan.id }}&limit={{ limit }}&page=1&type={{ type }}&noports=' + this.value + '&search={{ search }}'">
 							<option style="display: none;">None</option>
 							<option>True</option>
 							<option>False</option>
 						</select>
 					</div>
 				</td>
-				<td>
+				<td title="Search by any property of host/port ">
 					<form class="form-inline" action="/project/hosts">
-				  		<label for="search" class="mr-sm-2">Search by host note/ip:</label>
+				  		<label for="search" class="mr-sm-2"></label>
 				  		<input type="hidden" name="id" value="{{ scan.id }}"> 
-				  		<input type="text" id="search" class="form-control mb-2 mr-sm-2" name="search">
-				  		<button type="submit" class="btn btn-secondary mb-2">Submit</button>
+				  		<input type="text" id="search" class="form-control mb-2 mr-sm-2" name="search" placeholder="Search">
 			  		</form>
 				</td>
 			</tr>

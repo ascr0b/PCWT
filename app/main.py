@@ -8,6 +8,7 @@ import uuid
 import re
 import random
 import string
+import tldextract
 from app.auth import login_required
 from app.db import get_db
 
@@ -18,10 +19,44 @@ bp = Blueprint('main', __name__)
 @login_required
 def index():
 	db = get_db()
+
+	if request.args.get('limit') in ['10', '20', '30', '50', '100']:
+		limit = int(request.args.get('limit'))
+	else:
+		limit = 10
+
+	if 'page' not in request.args:
+		page = 1	
+	else:
+		try:
+			page = int(request.args.get('page'))
+		except ValueError:
+			page = 1
+
+	if 'search' not in request.args:
+		search = '.*' 
+	else:
+		search = request.args.get('search').strip()
+				
 	projects = db.execute(
-		'SELECT id, name FROM projects WHERE owner = ?', (session['username'], )
+		'SELECT id, name FROM projects WHERE owner = ? AND name REGEXP ? LIMIT ? OFFSET ?', 
+		(session['username'], search, limit, limit * (page - 1), )
 	).fetchall()
-	return render_template('main/main.html', username=session['username'], rows=projects)
+
+
+	allprojects = db.execute(
+		'SELECT id, name FROM projects WHERE owner = ? AND name REGEXP ?',
+		(session['username'], search, )
+	).fetchall()
+
+	if len(allprojects) % limit == 0:
+		pages = int(len(allprojects) / limit)
+	else:
+		pages = int(len(allprojects) / limit + 1)
+
+	return render_template('main/main.html', username=session['username'], rows=projects, limit=limit, pages=pages, page=page, search=search)
+
+
 
 @bp.route('/profile', methods = ['GET'])
 @login_required
@@ -134,10 +169,23 @@ def parseNmapFile(file, project, db):
 			).fetchone()
 
 			state = port.find('state').get('state')
-			service = port.find('service').get('name')
-			version = port.find('service').get('product')
-			if port.find('service').get('version'):
-				version += " " + port.find('service').get('version')
+			
+			try:
+				service = port.find('service').get('name')
+			except Exception as e:
+				service = ""
+			
+			try:
+				version = port.find('service').get('product')
+			except Exception:
+				version = ""	
+			
+			try:
+				if port.find('service').get('version'):
+					version += " " + port.find('service').get('version')
+			except Exception as e:
+				version = ""
+			
 
 			if portcheck is None:
 				portsq = 1
@@ -151,6 +199,7 @@ def parseNmapFile(file, project, db):
 					'UPDATE ports SET service = ?, version = ? WHERE id = ?',
 					(service, version, portcheck['id'])
 				)
+		
 		
 		db.execute(
 			'UPDATE hosts SET portsq = ? WHERE id = ?',
@@ -226,9 +275,11 @@ def parseDomainFile(file, project, db):
 
 		if checkIfExists is None:
 			domainid = str(uuid.uuid4())
+			ext = tldextract.extract(domain)
+			lvl = ext[1] + "." + ext[2]
 			db.execute(
-				'INSERT INTO domains (id, domain, ip, note, style, project) VALUES (?, ?, ?, ?, ?, ?)',
-				(domainid, domain, ip, "", "Default", project)
+				'INSERT INTO domains (id, domain, lvl, ip, note, style, project) VALUES (?, ?, ?, ?, ?, ?, ?)',
+				(domainid, domain, lvl, ip, "", "Default", project)
 			)	
 		else:
 			domainid = checkIfExists['id']
@@ -308,3 +359,4 @@ def update():
 		
 	success = "Project was successfully updated"
 	return render_template('main/update.html', username=session['username'], success=success, warnings=warnings, id=project['id'], name=project['name'])
+

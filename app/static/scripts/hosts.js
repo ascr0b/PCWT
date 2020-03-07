@@ -10,7 +10,6 @@ function updatePortNote(portid) {
 			if (xhttp.readyState == 4 && xhttp.status == 200) {
 				var str = this.responseText;
 				var portNote = JSON.parse(str);
-				//var md = new Remarkable();
 				document.getElementById(portid).innerHTML = portNote.note;
 				
 			}
@@ -35,7 +34,6 @@ function updateHostNote() {
 			if (xhttp.readyState == 4 && xhttp.status == 200) {
 				var str = this.responseText;
 				var hostNote = JSON.parse(str);
-				var md = new Remarkable();
 				document.getElementById(hostid + "_hostNote").innerHTML = hostNote.note;
 				
 			}
@@ -137,6 +135,10 @@ function closePortUpdateForm() {
 
 
 function deleteHost(hostid) {
+	var bool = confirm("Are you sure?");
+	if (bool === false) {
+		return "";
+	}
 	var xhttp = new XMLHttpRequest()
 	xhttp.onreadystatechange = function() {
 		if (xhttp.readyState == 4 && xhttp.status == 200) {

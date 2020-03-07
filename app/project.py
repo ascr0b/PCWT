@@ -9,7 +9,6 @@ import json
 import re
 from app.auth import login_required
 from app.db import get_db
-from app.main import parseNmapFile
 from app.helpers import *
 
 bp = Blueprint('project', __name__, url_prefix='/project')
@@ -49,7 +48,7 @@ def hosts():
 	if 'search' not in request.args:
 		search = '.*' 
 	else:
-		search = request.args.get('search')
+		search = request.args.get('search').strip()
 	
 	if request.args.get('noports') == 'False':
 		noports_t = 'False'
@@ -58,16 +57,13 @@ def hosts():
 		noports_t = 'True'
 		noports = '%'
 
-		
-
-
 	scan.id = escape(project['id'])
 	scan.name = escape(project['name'])
 	scan.hosts = []	
 
 	hosts = db.execute(
-		'SELECT id, ip, note, style FROM hosts WHERE project = ? AND (ip REGEXP ? OR note REGEXP ?) AND style LIKE ? AND portsq LIKE ? LIMIT ? OFFSET ?',
-		(projectid, search, search, style, noports, limit, limit * (page - 1), )
+		'SELECT DISTINCT h.id, h.ip, h.note, h.style FROM hosts h INNER JOIN ports p ON p.host = h.id WHERE h.project = ? AND (h.ip REGEXP ? OR h.note REGEXP ? OR p.port REGEXP ? OR p.state REGEXP ? OR p.service REGEXP ? OR p.version REGEXP ? OR p.note REGEXP ?) AND h.style LIKE ? AND h.portsq LIKE ? LIMIT ? OFFSET ?',
+		(projectid, search, search, search, search, search, search, search, style, noports, limit, limit * (page - 1), )
 	).fetchall()
 
 	for host in hosts:
@@ -83,9 +79,6 @@ def hosts():
 			(hostObj.id, )
 		).fetchall()
 
-		#if len(ports) == 0:
-		#	continue
-			
 		for port in ports:
 			portObj = portClass()
 			portObj.id = escape(port['id'])
@@ -93,7 +86,7 @@ def hosts():
 			portObj.state = escape(port['state'])
 			portObj.service = escape(port['service'])
 			if port['version']:
-				portObj.version = port['version']
+				portObj.version = escape(port['version'])
 			if port['note']:
 				portObj.note = Markup(bleach.clean(markdown.markdown(port['note']),markdown_tags, markdown_attrs))
 			hostObj.ports.append(portObj)
@@ -102,8 +95,8 @@ def hosts():
 		del hostObj
 
 	allhosts = db.execute(
-		'SELECT id, ip, note, style FROM hosts WHERE project = ? AND (ip REGEXP ? OR note REGEXP ?) AND style LIKE ? AND portsq LIKE ?',
-		(projectid, search, search, style, noports )
+		'SELECT DISTINCT h.id, h.ip, h.note, h.style FROM hosts h INNER JOIN ports p ON p.host = h.id WHERE h.project = ? AND (h.ip REGEXP ? OR h.note REGEXP ? OR p.port REGEXP ? OR p.state REGEXP ? OR p.service REGEXP ? OR p.version REGEXP ? OR p.note REGEXP ?) AND h.style LIKE ? AND h.portsq LIKE ?',
+		(projectid, search, search, search, search, search, search, search, style, noports, )
 	).fetchall()
 
 	if len(allhosts) % limit == 0:
@@ -183,7 +176,7 @@ def domains():
 	if 'search' not in request.args:
 		search = '.*' 
 	else:
-		search = request.args.get('search')
+		search = request.args.get('search').strip()
 	#searchsql = '%' + search + '%'	
 
 	if request.args.get('limit') in ['10', '20', '30', '50', '100']:
@@ -203,18 +196,27 @@ def domains():
 		style = request.args.get('type')	
 	else:
 		style = '%'	
-							
+	
+	if request.args.get('order') == 'Domain':
+		order = 'Domain'		
+	else:
+		order = 'IP'							
 
 
 	scan.id = escape(project['id'])
 	scan.name = escape(project['name'])
 	scan.domains = []
 
-
-	domainsList = db.execute(
-		'SELECT * FROM domains WHERE project = ? and style LIKE ? and (ip REGEXP ? or note REGEXP ? or domain REGEXP ?) ORDER BY ip LIMIT ? OFFSET ?', 
-		(projectid, style, search, search, search, limit, limit * (page - 1), )
-	).fetchall()
+	if order == 'Domain':
+		domainsList = db.execute(
+			'SELECT * FROM domains WHERE project = ? and style LIKE ? and (ip REGEXP ? or note REGEXP ? or domain REGEXP ?) ORDER BY lvl, domain, ip LIMIT ? OFFSET ?', 
+			(projectid, style, search, search, search, limit, limit * (page - 1), )
+		).fetchall()
+	else:
+		domainsList = db.execute(
+			'SELECT * FROM domains WHERE project = ? and style LIKE ? and (ip REGEXP ? or note REGEXP ? or domain REGEXP ?) ORDER BY ip, lvl, domain LIMIT ? OFFSET ?', 
+			(projectid, style, search, search, search, limit, limit * (page - 1), )
+		).fetchall()
 
 	for d in domainsList:
 		domain = domainClass()
@@ -237,7 +239,7 @@ def domains():
 	else:
 		pages = int(len(alldomains) / limit + 1)
 	
-	return render_template('project/domains.html', username=session['username'], scan=scan, limit=limit, page=page, search=search, type=style, pages=pages)
+	return render_template('project/domains.html', username=session['username'], scan=scan, limit=limit, page=page, search=search, type=style, pages=pages, order=order)
 
 
 

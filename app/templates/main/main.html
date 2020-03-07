@@ -20,12 +20,32 @@
 
 		{% include 'header.html' %}	
 
-		<div class="container">
+		<div class="container" style="margin-top: 5px;">
 			<div class="row">
 				<div class="col">
 					<div class="row">
-						<div class="col-sm-10">
-							<h3>Projects</h3>
+						<div class="col-sm-5">
+							<h3 >
+								<a style="color: black" href="/" >Projects</a>
+							</h3>	
+						</div>
+						<div class="col-sm-2">
+							<div class="form-inline">
+							<label class="mr-sm-2" for="sel1">Limit:</label>
+								<select class="custom-select form-control mb-2 mr-sm-2" id="sel1" onchange="window.location.href = '/?&limit=' + this.value + '&page=1&search={{ search }}'">
+									<option style="display: none;">0</option>
+									<option>10</option>
+									<option>20</option>
+									<option>30</option>
+									<option>50</option>
+									<option>100</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<form class="form-inline" action="/">
+							  	<input type="text" id="search" placeholder="Search" class="form-control mb-2 mr-sm-2" name="search">
+			  				</form>
 						</div>
 						<div class="col-sm-2">
 							<a href="/new"><button type="button" class="btn btn-light text-secondary">New one</button></a>
@@ -34,18 +54,20 @@
 					<table class="table table-hover">
 						{% for row in rows %}
 						<tr id="{{ row[0] }}">
-							<td><a lass="list-group-item" href="/update?id={{ row[0] }}"> {{ row[1] }}</a></td>
-							<td><a lass="list-group-item" href="/project/hosts?id={{ row[0] }}">Hosts</a></td>
-							<td><a lass="list-group-item" href="/project/ports?id={{ row[0] }}">Ports</a></td>
-							<td><a lass="list-group-item" href="/project/domains?id={{ row[0] }}">Domains</a></td>
+							<td><a href="/update?id={{ row[0] }}"> {{ row[1] }}</a></td>
+							<td><a href="/project/hosts?id={{ row[0] }}">Hosts</a></td>
+							<td><a href="/project/ports?id={{ row[0] }}">Ports</a></td>
+							<td><a href="/project/domains?id={{ row[0] }}">Domains</a></td>
+							<td><a href="/export/?id={{ row[0] }}">Export</a></td>
 							<td style="width: 15%"><button type="button" class="btn btn-danger" onclick="del('{{ row[0] }}')">Delete</button></a></td>
 						{% endfor %}
-					</ul>
+						</tr>
+					</table>
 				</div>
 			</div>
 		</div>	
  
-
+		{% include 'main/pagination.html' %}
 
 	</body>
 </html>
