@@ -84,7 +84,7 @@ def exportDomainIPbyIP():
 		return Response(json.dumps({"status": "not found"}), mimetype='application/json')
 
 	domains = db.execute(
-		'SELECT domain || " : " || ip as d FROM domains WHERE project = ? ORDER BY ip, lvl, domain',
+		'SELECT domain || ":" || ip as d FROM domains WHERE project = ? ORDER BY ip, lvl, domain',
 		(projectid, )
 	).fetchall()
 
@@ -107,7 +107,7 @@ def exportDomainIPbyDomain():
 
 
 	domains = db.execute(
-		'SELECT domain || " : " || ip as d FROM domains WHERE project = ? ORDER BY lvl, domain, ip',
+		'SELECT domain || ":" || ip as d FROM domains WHERE project = ? ORDER BY lvl, domain, ip',
 		(projectid,)
 	).fetchall()
 
