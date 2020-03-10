@@ -9,7 +9,7 @@ The app provides a convenient web interface for working with various types of fi
 ## Install from sources
 
 ```
-apt install python3 python-venv python3-pip
+apt install python3 python3-venv python3-pip
 git clone https://github.com/ascr0b/PCWT
 
 python3 -m venv env
