@@ -51,7 +51,8 @@ masscan -p 1-65535 --rate 2000
 
 ## Install from sources
 
-NOTE: Change the paths for amass, findomain, nmap and masscan in `config.py` before running commands.
+NOTE 1: Change the paths for amass, findomain, nmap and masscan in `config.py` before running commands.
+NOTE 2: The app must be started as root if you want masscan to work.
 
 ```
 apt install python3 python-venv python3-pip

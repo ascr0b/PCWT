@@ -712,7 +712,7 @@ def masscan():
 	if t == "1":
 		hosts = db.execute(
 			'SELECT DISTINCT ip FROM domains WHERE project = ? AND ip NOT IN \
-			(SELECT ip FROM hosts where project = ?)',
+			(SELECT ip FROM hosts where project = ? and portsq = 1)',
 			(projectid, projectid, )
 		).fetchall()
 		ips = ",".join(map(lambda x: x['ip'], hosts))
@@ -757,7 +757,7 @@ def nmap():
 	if t == "1":
 		hosts = db.execute(
 			'SELECT DISTINCT ip FROM domains WHERE project = ? AND ip NOT IN \
-			(SELECT ip FROM hosts where project = ?)',
+			(SELECT ip FROM hosts where project = ? and portsq = 1)',
 			(projectid, projectid, )
 		).fetchall()
 		ips = list(map(lambda x: x['ip'], hosts))

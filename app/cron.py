@@ -293,9 +293,10 @@ def runMasscan(projectid, projectname, ips, t):
 
 	postToTelegram("\[{}]\[Type={}] Masscan scan was started.".format(projectname, t))
 	output = "/tmp/masscan_{}".format(str(uuid.uuid4()))
+
 	out = subprocess.run([masscan_path, '-p', '1-65535','--rate', '2000', '-oX', output, ips], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	
 	db = getdb()
+	
 	try:
 		with open(output, 'r') as content_file:
 			masscanXML = content_file.read()
