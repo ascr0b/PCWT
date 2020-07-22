@@ -8,16 +8,16 @@ The app provides a convenient web interface for working with various types of fi
 
 ### Main page
 
-![Main page](https://raw.githubusercontent.com/ascr0b/PCWT/master/images/mainpage.png =250x)
+![Main page](https://raw.githubusercontent.com/ascr0b/PCWT/master/images/mainpage.png)
 
 ### Project settings
 
-![Settings](https://raw.githubusercontent.com/ascr0b/PCWT/master/images/settings.png =250x)
+![Settings](https://raw.githubusercontent.com/ascr0b/PCWT/master/images/settings.png)
 
 
 ### Domains dashboard
 
-![Domains](https://raw.githubusercontent.com/ascr0b/PCWT/master/images/domains.png =250x)
+![Domains](https://raw.githubusercontent.com/ascr0b/PCWT/master/images/domains.png)
 
 ### Port scan
 
