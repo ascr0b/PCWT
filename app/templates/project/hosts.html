@@ -14,13 +14,12 @@
 		<!-- Latest compiled JavaScript -->
 		<script src="/static/scripts/bootstrap.min.js"></script>
 
-		<script src="/static/scripts/remarkable.min.js"></script>
 		<script src="/static/scripts/hosts.js"></script>
 		<style type="text/css">
-			.col-centered{
+			.col-centered {
     			float: none;
     			margin: 0 auto;
-		}
+			}
 		</style>
 
 	</head>
@@ -33,12 +32,15 @@
 			<a style="color: black; font-style: normal;" href="/project/hosts?id={{ scan.id }}">{{ scan.name }}</a>
 		</h2>
 
+		<span class="text-success" style="position: fixed; top: 15%;right: 5%;" id="info"></span>
+
 		{% include 'project/hosts/search.html' %}
 
 		<!-- Main part -->
 		<div class="container">
 			{% for host in scan.hosts %}
 
+			<!--<div class="row"  id="{{ host.id }}" onmouseover="markAs2('{{ host.id }}', 'Default')">-->
 			<div class="row"  id="{{ host.id }}">
 				<div class="col" >
 					<div class="row">
@@ -52,7 +54,10 @@
 								<button type="button" class="btn btn-outline-info dropdown-toggle" data-toggle="dropdown">Actions</button>
 								<div class="dropdown-menu">
 									<a id ="{{ host.id }}" class="dropdown-item" onclick="openHostUpdateForm(this.id)">Update host note</a>
-									<a class="dropdown-item" href="/project/domains?id={{ scan.id }}&search={{ host.ip }}">Show domains</i></a>
+									<a class="dropdown-item" href="/project/domains?id={{ scan.id }}&search={{ host.ip }}" target="_blank">Show domains</a>
+									<div class="dropdown-divider"></div> 
+									<a class="dropdown-item" onclick="runMasscan('{{ scan.id }}', '{{ host.ip }}')">Run masscan</a>
+									<a class="dropdown-item" onclick="runNmap('{{ scan.id }}', '{{ host.ip }}')">Run nmap</a>
 									<div class="dropdown-divider"></div> 
 									<a class="dropdown-item" onclick="markAs('{{ host.id }}', 'Checked')">Mark as <i>checked</i></a>
 									<a class="dropdown-item" onclick="markAs('{{ host.id }}', 'Hacked')">Mark as <i>hacked</i></a>

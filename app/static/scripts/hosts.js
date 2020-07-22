@@ -154,3 +154,99 @@ function deleteHost(hostid) {
 
 	
 }
+
+function markAs2(hostid, type) {
+	var id = hostid + "_hostStyle";
+	if (!document.getElementById(id).getElementsByTagName('span')[0].innerHTML.includes("New")) {
+		console.log("works");
+		return "";
+	}
+
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4 && xhttp.status == 200) {
+			var str = this.responseText;
+			var hostStyle = JSON.parse(str);
+			var id = hostid + "_hostStyle"
+			if (type == 'Default') {
+				document.getElementById(id).getElementsByTagName('span')[0].remove();
+				return;
+			}
+			
+		}
+	}
+
+	xhttp.open("POST", "/api/updateHostStyle", true);
+	xhttp.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+	xhttp.send(JSON.stringify({"hostid" : hostid, "type" : type}));
+
+}
+
+function runMasscan(project, host) {
+	var bool = confirm("Are you sure?");
+    if (bool === false) {
+        return "";
+    }
+
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+            var response = JSON.parse(this.responseText);
+            if (response.status == "success") {
+            	document.getElementById('info').setAttribute("class", "text-success")
+                document.getElementById('info').innerHTML = "SUCCESS: Task was created.";
+                window.setTimeout(function() {
+                    document.getElementById('info').innerHTML = "";
+                }, 2000);
+            } else {
+            	document.getElementById('info').setAttribute("class", "text-danger")
+                document.getElementById('info').innerHTML = "ERROR: " + response.status;
+                window.setTimeout(function() {
+                    document.getElementById('info').innerHTML = "";
+                }, 2000);
+            }
+
+        }
+    }
+
+    xhttp.open("POST", "/api/masscan", true);
+    xhttp.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+    xhttp.send(JSON.stringify({"id" : project, "ips" : host, "type" : "3"}));
+
+}
+
+
+function runNmap(project, host) {
+	var bool = confirm("Are you sure?");
+    if (bool === false) {
+        return "";
+    }
+
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+            var response = JSON.parse(this.responseText);
+            if (response.status == "success") {
+            	document.getElementById('info').setAttribute("class", "text-success")
+                document.getElementById('info').innerHTML = "SUCCESS: Task was created.";
+                window.setTimeout(function() {
+                    document.getElementById('info').innerHTML = "";
+                }, 2000);
+            } else {
+            	document.getElementById('info').setAttribute("class", "text-danger")
+                document.getElementById('info').innerHTML = "ERROR: " + response.status;
+                window.setTimeout(function() {
+                    document.getElementById('info').innerHTML = "";
+                }, 2000);
+            }
+
+        }
+    }
+
+    xhttp.open("POST", "/api/nmap", true);
+    xhttp.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+    xhttp.send(JSON.stringify({"id" : project, "ips" : host, "type" : "3"}));
+
+}

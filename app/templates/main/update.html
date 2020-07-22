@@ -20,7 +20,8 @@
 	{% include 'header.html' %}
 
 	<div class="container">
-		<h3 style="text-align: center;">Uploading new files to project: {{ name }}</h3>
+		<h2 style="text-align: center;"><b>{{ name }}</b></h2>
+		<h4 style="text-align: center;">Upload new files to the project</h4>
 		<form action="/update" method="POST" enctype="multipart/form-data">
 			<div class="form-group">
 				<input class="form-control" name="id" type="hidden" value="{{ id }}">
@@ -55,9 +56,91 @@
 		{% endfor %}
 
 		<div class="row">
+			<div class="col">
+				<h4 style="text-align: center;">Edit name</h4>
+				<form id="formName">
+					<input type="hidden" name="id" value="{{ id }}">
+		  			<div class="form-group">
+		  				<input type="text" class="form-control" placeholder="Project's name" name="name" required>
+		  			</div>
+		  			<button type="button" class="btn btn-primary btn-secondary" onclick="submitName()">Submit</button>
+				</form>
+				</br>
+				<p class="text-success" style="text-align: center;" id="successn"></p>
+				<p class="text-danger" style="text-align: center;" id="errorn"></p>
+			</div>
+			<div class="col">
+				<h4 style="text-align: center;">Find subdomains</h4>
+				<form id="formSubdomains">
+					<input type="hidden" name="id" value="{{ id }}">
+		  			<div class="form-group">
+		  				<input type="text" class="form-control" placeholder="test.com" name="domain" required>
+		  			</div>
+		  			<div class="form-group">
+						<select class="custom-select form-control" id="sel1" name="period">
+							<option value="1">Once</option>
+							<option value="2">Every 2 hours</option>
+							<option value="3">Every 5 hours</option>
+							<option value="4">Every day</option>
+							<option value="5">Every week</option>
+						</select>
+					</div>
+		  			<button type="button" class="btn btn-primary btn-secondary" onclick="submitSubdomains()">Submit</button>
+				</form>
+				</br>
+				<p class="text-success" style="text-align: center;" id="successc"></p>
+				<p class="text-danger" style="text-align: center;" id="errorc"></p>
+			</div>
+			
+		</div>
+
+		<div class="row">
+			<div class="col">
+				<h4 style="text-align: center;" title="Ports: 1 - 65535. Rate: 4000.">Masscan*</h4>
+				<form id="formMasscan">
+					<input type="hidden" name="id" value="{{ id }}">
+					<div class="form-group">
+						<select class="custom-select form-control" id="sel2" name="period" onchange="masscanHandler()">
+							<option value="1">IPs from Domains tab without port scan</option>
+							<option value="2">All IPs from Hosts and Domains tabs</option>
+							<option value="3">Custom</option>
+						</select>
+					</div>
+		  			<div class="form-group" style="display: none" id="masscan">
+		  				<input type="text" class="form-control" placeholder="192.168.1.2,192.168.1.0/24" name="ip" required>
+		  			</div>
+		  			<button type="button" class="btn btn-primary btn-secondary" onclick="submitMasscan()">Submit</button>
+				</form>
+				</br>
+				<p class="text-success" style="text-align: center;" id="successm"></p>
+				<p class="text-danger" style="text-align: center;" id="errorm"></p>
+			</div>
+			<div class="col">
+				<h4 style="text-align: center;" title="nmap --top-ports 10000 -sV -Pn --min-rate 300 --max-retries 2 [ip]">Nmap*</h4>
+				<form id="formNmap">
+					<input type="hidden" name="id" value="{{ id }}">
+					<div class="form-group">
+						<select class="custom-select form-control" id="sel3" name="period" onchange="nmapHandler()" >
+							<option value="1">IPs from Domains tab without port scan</option>
+							<option value="2">All IPs from Hosts and Domains tabs</option>
+							<option value="3">Custom</option>
+						</select>
+					</div>
+		  			<div class="form-group" style="display: none" id="nmap">
+		  				<input type="text" class="form-control" placeholder="192.168.1.2,192.168.1.0/24" name="ip" required>
+		  			</div>
+		  			<button type="button" class="btn btn-primary btn-secondary" onclick="submitNmap()">Submit</button>
+				</form>
+				</br>
+				<p class="text-success" style="text-align: center;" id="successnm"></p>
+				<p class="text-danger" style="text-align: center;" id="errornm"></p>
+			</div>
+		</div>
+
+		<div class="row">
 			<!-- add host -->
 			<div class="col">
-				<h3 style="text-align: center;">Add host</h3>
+				<h4 style="text-align: center;">Add a single host</h4>
 				<form id="formHost" method="POST">
 					<input type="hidden" name="id" value="{{ id }}">
 		  			<div class="form-group">
@@ -87,7 +170,7 @@
 
 			<!-- add domain -->
 			<div class="col">
-				<h3 style="text-align: center;">Add Domain</h3>
+				<h4 style="text-align: center;">Add a single domain</h4>
 				<form id="formDomain">
 					<input type="hidden" name="id" value="{{ id }}">
 		  			<div class="form-group">
@@ -105,6 +188,7 @@
 
 
 		</div>
+
 
 	</div>
 

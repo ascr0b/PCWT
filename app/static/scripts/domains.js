@@ -51,7 +51,7 @@ function markAs(domainid, type) {
 			var str = this.responseText;
 			var style = JSON.parse(str);
 			var id = domainid + "_style"
-			if (type == 'Default') {
+			if (style.style == 'Default') {
 				document.getElementById(id).getElementsByTagName('span')[0].remove();
 				return;
 			}
@@ -59,13 +59,13 @@ function markAs(domainid, type) {
 				document.getElementById(id).innerHTML += "	<span></span>"
 			}
 			document.getElementById(id).getElementsByTagName('span')[0].innerHTML = style.style;
-			if (type == 'Checked') {
+			if (style.style == 'Checked') {
 				document.getElementById(id).getElementsByTagName('span')[0].setAttribute("class", "badge badge-pill badge-secondary")
 			}
-			if (type == 'Hacked') {
+			if (style.style == 'Hacked') {
 				document.getElementById(id).getElementsByTagName('span')[0].setAttribute("class", "badge badge-pill badge-danger")
 			}
-			if (type == 'Suspicious') {
+			if (style.style == 'Suspicious') {
 				document.getElementById(id).getElementsByTagName('span')[0].setAttribute("class", "badge badge-pill badge-warning")
 			}
 			
@@ -96,5 +96,135 @@ function deleteDomain(domainid) {
 	xhttp.open("POST", "/api/deleteDomain");
 	xhttp.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
 	xhttp.send(JSON.stringify({"domainid" : domainid }));
+
+}
+
+
+function markAs2(domainid, type) {
+	var id = domainid + "_style";
+	if (!document.getElementById(id).getElementsByTagName('span')[0].innerHTML.includes("New")) {
+		return "";
+	}
+
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4 && xhttp.status == 200) {
+			var str = this.responseText;
+			var style = JSON.parse(str);
+			var id = domainid + "_style"
+			if (style.style == 'Default') {
+				document.getElementById(id).getElementsByTagName('span')[0].remove();
+				return;
+			}
+		}
+	}
+
+	xhttp.open("POST", "/api/updateDomainStyle", true);
+	xhttp.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+	xhttp.send(JSON.stringify({"domainid" : domainid, "type" : type}));
+
+}
+
+function submitSubdomains(project, domain) { 
+    var bool = confirm("Are you sure?");
+    if (bool === false) {
+        return "";
+    }
+
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+            var response = JSON.parse(this.responseText);
+            if (response.status == "success") {
+            	document.getElementById('info').setAttribute("class", "text-success")
+                document.getElementById('info').innerHTML = "SUCCESS: Task was created.";
+                window.setTimeout(function() {
+                    document.getElementById('info').innerHTML = "";
+                }, 2000);
+            } else {
+            	document.getElementById('info').setAttribute("class", "text-danger")
+                document.getElementById('info').innerHTML = "ERROR: " + response.status;
+                window.setTimeout(function() {
+                    document.getElementById('info').innerHTML = "";
+                }, 2000);
+            }
+
+        }
+    }
+
+    xhttp.open("POST", "/api/subdomains", true);
+    xhttp.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+    xhttp.send(JSON.stringify({"id" : project, "domain" : domain, "period" : "1"}));
+
+}
+
+
+function runMasscan(project, host) {
+	var bool = confirm("Are you sure?");
+    if (bool === false) {
+        return "";
+    }
+
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+            var response = JSON.parse(this.responseText);
+            if (response.status == "success") {
+            	document.getElementById('info').setAttribute("class", "text-success")
+                document.getElementById('info').innerHTML = "SUCCESS: Task was created.";
+                window.setTimeout(function() {
+                    document.getElementById('info').innerHTML = "";
+                }, 2000);
+            } else {
+            	document.getElementById('info').setAttribute("class", "text-danger")
+                document.getElementById('info').innerHTML = "ERROR: " + response.status;
+                window.setTimeout(function() {
+                    document.getElementById('info').innerHTML = "";
+                }, 2000);
+            }
+
+        }
+    }
+
+    xhttp.open("POST", "/api/masscan", true);
+    xhttp.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+    xhttp.send(JSON.stringify({"id" : project, "ips" : host, "type" : "3"}));
+
+}
+
+
+function runNmap(project, host) {
+	var bool = confirm("Are you sure?");
+    if (bool === false) {
+        return "";
+    }
+
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+            var response = JSON.parse(this.responseText);
+            if (response.status == "success") {
+            	document.getElementById('info').setAttribute("class", "text-success")
+                document.getElementById('info').innerHTML = "SUCCESS: Task was created.";
+                window.setTimeout(function() {
+                    document.getElementById('info').innerHTML = "";
+                }, 2000);
+            } else {
+            	document.getElementById('info').setAttribute("class", "text-danger")
+                document.getElementById('info').innerHTML = "ERROR: " + response.status;
+                window.setTimeout(function() {
+                    document.getElementById('info').innerHTML = "";
+                }, 2000);
+            }
+
+        }
+    }
+
+    xhttp.open("POST", "/api/nmap", true);
+    xhttp.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+    xhttp.send(JSON.stringify({"id" : project, "ips" : host, "type" : "3"}));
 
 }

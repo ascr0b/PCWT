@@ -1,7 +1,7 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, session
+    Blueprint, flash, g, redirect, render_template, request, url_for, session, render_template_string
 )
-
+import os 
 from werkzeug.security import check_password_hash, generate_password_hash
 import xml.etree.ElementTree as ET
 import uuid
@@ -39,13 +39,13 @@ def index():
 		search = request.args.get('search').strip()
 				
 	projects = db.execute(
-		'SELECT id, name FROM projects WHERE owner = ? AND name REGEXP ? LIMIT ? OFFSET ?', 
+		'SELECT id, name FROM projects WHERE owner = ? AND name REGEXP ? ORDER BY rowid DESC LIMIT ? OFFSET ?', 
 		(session['username'], search, limit, limit * (page - 1), )
 	).fetchall()
 
 
 	allprojects = db.execute(
-		'SELECT id, name FROM projects WHERE owner = ? AND name REGEXP ?',
+		'SELECT id, name FROM projects WHERE owner = ? AND name REGEXP ? ORDER BY rowid DESC',
 		(session['username'], search, )
 	).fetchall()
 
@@ -53,7 +53,7 @@ def index():
 		pages = int(len(allprojects) / limit)
 	else:
 		pages = int(len(allprojects) / limit + 1)
-
+		
 	return render_template('main/main.html', username=session['username'], rows=projects, limit=limit, pages=pages, page=page, search=search)
 
 
@@ -83,10 +83,11 @@ def new():
 
 		if not projectName:
 			errors.append("Project name is required")
-
+		'''
 		if not nmapFile and not masscanFile and not domainFile:
 			errors.append("Even one file is required")
-
+		'''
+		
 		if not nmapFile:
 			warnings.append("Nmap file was not uploaded")
 		else:
@@ -128,7 +129,7 @@ def new():
 			errors.append(str(e))
 			return render_template('main/new.html', username=session['username'], errors=errors)
 		
-		success = "Project was successfully created"
+		success = "Project was created"
 		return render_template('main/new.html', username=session['username'], warnings=warnings, success=success)	
 
 	else:
@@ -151,11 +152,15 @@ def parseNmapFile(file, project, db):
 			portsq = 0
 			db.execute(
 				'INSERT INTO hosts (id, ip, note, style, portsq, project) VALUES (?, ?, ?, ?, ?, ?)',
-				(hostid, ip, "", "Default", portsq, project)
+				(hostid, ip, "", "New", portsq, project)
 			)
 		else:
 			hostid = hostCheck['id']
 			portsq = int(hostCheck['portsq'])
+			db.execute(
+				'UPDATE hosts SET style = ? WHERE id = ?',
+				("New", hostid)
+			)
 
 
 		for port in host.find('ports').findall('port'):
@@ -221,12 +226,16 @@ def parseMasscanFile(file, project, db):
 			hostid = str(uuid.uuid4())
 			db.execute(
 				'INSERT INTO hosts (id, ip, note, style, portsq, project) VALUES (?, ?, ?, ?, ?, ?)',
-				(hostid, ip, "", "Default", 0, project)
+				(hostid, ip, "", "New", 0, project)
 			)
 			portsq = 0
 		else:
 			hostid = hostCheck['id']
 			portsq = int(hostCheck['portsq'])
+			db.execute(
+				'UPDATE hosts SET style = ? WHERE id = ?',
+				("New", hostid)
+			)
 
 
 		for port in host.find('ports').findall('port'):
@@ -279,7 +288,7 @@ def parseDomainFile(file, project, db):
 			lvl = ext[1] + "." + ext[2]
 			db.execute(
 				'INSERT INTO domains (id, domain, lvl, ip, note, style, project) VALUES (?, ?, ?, ?, ?, ?, ?)',
-				(domainid, domain, lvl, ip, "", "Default", project)
+				(domainid, domain, lvl, ip, "", "New", project)
 			)	
 		else:
 			domainid = checkIfExists['id']
@@ -359,4 +368,3 @@ def update():
 		
 	success = "Project was successfully updated"
 	return render_template('main/update.html', username=session['username'], success=success, warnings=warnings, id=project['id'], name=project['name'])
-

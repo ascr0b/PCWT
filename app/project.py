@@ -40,7 +40,7 @@ def hosts():
 		except ValueError:
 			page = 1
 
-	if request.args.get('type') in ['Hacked', 'Checked', 'Suspicious', 'Default']:
+	if request.args.get('type') in ['Hacked', 'Checked', 'Suspicious', 'Default', 'New']:
 		style = request.args.get('type')	
 	else:
 		style = '%'
@@ -62,7 +62,7 @@ def hosts():
 	scan.hosts = []	
 
 	hosts = db.execute(
-		'SELECT DISTINCT h.id, h.ip, h.note, h.style FROM hosts h INNER JOIN ports p ON p.host = h.id WHERE h.project = ? AND (h.ip REGEXP ? OR h.note REGEXP ? OR p.port REGEXP ? OR p.state REGEXP ? OR p.service REGEXP ? OR p.version REGEXP ? OR p.note REGEXP ?) AND h.style LIKE ? AND h.portsq LIKE ? LIMIT ? OFFSET ?',
+		'SELECT DISTINCT h.id, h.ip, h.note, h.style FROM hosts h LEFT JOIN ports p ON p.host = h.id WHERE h.project = ? AND (h.ip REGEXP ? OR h.note REGEXP ? OR p.port REGEXP ? OR p.state REGEXP ? OR p.service REGEXP ? OR p.version REGEXP ? OR p.note REGEXP ?) AND h.style LIKE ? AND h.portsq LIKE ? LIMIT ? OFFSET ?',
 		(projectid, search, search, search, search, search, search, search, style, noports, limit, limit * (page - 1), )
 	).fetchall()
 
@@ -95,7 +95,7 @@ def hosts():
 		del hostObj
 
 	allhosts = db.execute(
-		'SELECT DISTINCT h.id, h.ip, h.note, h.style FROM hosts h INNER JOIN ports p ON p.host = h.id WHERE h.project = ? AND (h.ip REGEXP ? OR h.note REGEXP ? OR p.port REGEXP ? OR p.state REGEXP ? OR p.service REGEXP ? OR p.version REGEXP ? OR p.note REGEXP ?) AND h.style LIKE ? AND h.portsq LIKE ?',
+		'SELECT DISTINCT h.id, h.ip, h.note, h.style FROM hosts h LEFT JOIN ports p ON p.host = h.id WHERE h.project = ? AND (h.ip REGEXP ? OR h.note REGEXP ? OR p.port REGEXP ? OR p.state REGEXP ? OR p.service REGEXP ? OR p.version REGEXP ? OR p.note REGEXP ?) AND h.style LIKE ? AND h.portsq LIKE ?',
 		(projectid, search, search, search, search, search, search, search, style, noports, )
 	).fetchall()
 
@@ -177,7 +177,6 @@ def domains():
 		search = '.*' 
 	else:
 		search = request.args.get('search').strip()
-	#searchsql = '%' + search + '%'	
 
 	if request.args.get('limit') in ['10', '20', '30', '50', '100']:
 		limit = int(request.args.get('limit'))
@@ -192,7 +191,7 @@ def domains():
 		except ValueError:
 			page = 1
 
-	if request.args.get('type') in ['Hacked', 'Checked', 'Suspicious', 'Default']:
+	if request.args.get('type') in ['Hacked', 'Checked', 'Suspicious', 'Default', 'New']:
 		style = request.args.get('type')	
 	else:
 		style = '%'	
@@ -219,11 +218,16 @@ def domains():
 		).fetchall()
 
 	for d in domainsList:
+		ports = db.execute(
+			'SELECT port FROM ports WHERE host IN (SELECT id FROM hosts WHERE project = ? AND ip = ?)',
+			(projectid, d['ip'], )
+		).fetchall()
 		domain = domainClass()
 		domain.id = escape(d['id'])
 		domain.domain = escape(d['domain'])
 		domain.ip = escape(d['ip'])
 		domain.style = escape(d['style'])
+		domain.ports = list(map(lambda x: x['port'], ports))
 		if d['note']:
 			domain.note = Markup(bleach.clean(markdown.markdown(d['note']), markdown_tags, markdown_attrs))
 		scan.domains.append(domain)

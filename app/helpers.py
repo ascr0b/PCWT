@@ -49,3 +49,11 @@ class domainClass:
 	ip = ""
 	note = ""
 	style = ""
+	ports = []
+
+
+### Classess for crontab
+class taskClass:
+	id = ""
+	domain = ""
+	project = ""	

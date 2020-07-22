@@ -1,7 +1,10 @@
-bleach==3.1.0
+bleach>=3.1.4
 bleach-whitelist==0.0.10
 Click==7.0
 Flask==1.1.1
 Jinja2==2.10.3
 Markdown==3.1.1
 tldextract==2.2.2
+flask-crontab
+pysocks
+requests

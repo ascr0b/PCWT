@@ -33,12 +33,11 @@
 							<div class="form-inline">
 							<label class="mr-sm-2" for="sel1">Limit:</label>
 								<select class="custom-select form-control mb-2 mr-sm-2" id="sel1" onchange="window.location.href = '/?&limit=' + this.value + '&page=1&search={{ search }}'">
-									<option style="display: none;">0</option>
-									<option>10</option>
-									<option>20</option>
-									<option>30</option>
-									<option>50</option>
-									<option>100</option>
+									<option {% if limit == 10 %}selected{% endif %}>10</option>
+									<option {% if limit == 20 %}selected{% endif %}>20</option>
+									<option {% if limit == 30 %}selected{% endif %}>30</option>
+									<option {% if limit == 50 %}selected{% endif %}>50</option>
+									<option {% if limit == 100 %}selected{% endif %}>100</option>
 								</select>
 							</div>
 						</div>
@@ -58,8 +57,26 @@
 							<td><a href="/project/hosts?id={{ row[0] }}">Hosts</a></td>
 							<td><a href="/project/ports?id={{ row[0] }}">Ports</a></td>
 							<td><a href="/project/domains?id={{ row[0] }}">Domains</a></td>
-							<td><a href="/export/?id={{ row[0] }}">Export</a></td>
-							<td style="width: 15%"><button type="button" class="btn btn-danger" onclick="del('{{ row[0] }}')">Delete</button></a></td>
+							<td style="width: 15%">
+								<div class="dropdown">
+									<button type="button" class="btn btn-outline-success btn-sm dropdown-toggle" data-toggle="dropdown">
+										Extra
+									</button>
+									<div class="dropdown-menu">
+										<a class="dropdown-item" href="/export/?id={{ row[0] }}">
+											Export	
+										</a>
+										<a class="dropdown-item" href="/cron/?id={{ row[0] }}">
+											Subdomains tasks
+										</a>
+										<div class="dropdown-divider"></div>
+										<a class="dropdown-item text-danger" onclick="del('{{ row[0] }}')">
+											Delete
+										</a>
+									</div>	
+		
+								</div>	
+							</td>
 						{% endfor %}
 						</tr>
 					</table>

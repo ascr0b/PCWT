@@ -51,3 +51,12 @@ CREATE TABLE domains (
 	project text,
 	FOREIGN KEY (project) REFERENCES projects (id)
 );
+
+CREATE TABLE crontab (
+	id text PRIMARY KEY,
+	domain text,
+	period text,
+	status text,
+	project text,
+	FOREIGN KEY (project) REFERENCES projects (id)
+);

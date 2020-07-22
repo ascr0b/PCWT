@@ -18,7 +18,7 @@
 		<script src="/static/scripts/domains.js"></script>
 		<style type="text/css">
 			.ip {
-				font-size: 12px; 
+				font-size: 13px; 
 				font-style: italic;
 			}
 		</style>
@@ -31,12 +31,12 @@
 		{% include 'header.html' %}	
 		<!-- -->
 
-		
-
 		<h2 title="Reset search filters" style="text-align: center" >
 			<a style="color: black; font-style: normal;" href="/project/domains?id={{ scan.id }}">{{ scan.name }}</a>
 		</h2>
-
+		
+		<span class="text-success" style="position: fixed; top: 15%;right: 5%;" id="info"></span>
+		
 		{% include 'project/domains/search.html' %}
 
 		<!-- Main part-->
@@ -45,8 +45,8 @@
 				<tbody>
 
 					{% for domain in scan.domains %}
+					<!--<tr id="{{ domain.id }}" onmouseover="markAs2('{{ domain.id }}', 'Default')">-->
 					<tr id="{{ domain.id }}">
-
 						{% include 'project/domains/style.html' %}
 
 						<td style="width: 30%">
@@ -57,7 +57,16 @@
 							</div>
 							<div class="row">
 								<div class="col ip">
-									{{ domain.ip }}
+									<a href="/project/hosts?id={{ scan.id }}&search={{ domain.ip }}" style="color: black" target="_blank">
+										{{ domain.ip }}
+									</a>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col">
+									{% for port in domain.ports %}
+									<span class="badge badge-info">{{ port }}</span>
+									{% endfor %}
 								</div>
 							</div>
 						</td>
@@ -68,8 +77,14 @@
 									Actions
 								</button>
 								<div class="dropdown-menu">
-									<a class="dropdown-item" href="/project/hosts?id={{ scan.id }}&search={{ domain.ip }}">
-										Show host
+									<a class="dropdown-item" onclick="submitSubdomains('{{ scan.id }}', '{{ domain.domain }}')">
+										Find subdomains
+									</a>
+									<a class="dropdown-item" onclick="runMasscan('{{ scan.id }}', '{{ domain.ip }}')">
+										Run masscan
+									</a>
+									<a class="dropdown-item" onclick="runNmap('{{ scan.id }}', '{{ domain.ip }}')">
+										Run nmap
 									</a>
 									<div class="dropdown-divider"></div> 
 									<a class="dropdown-item" onclick="markAs('{{ domain.id }}', 'Checked')">

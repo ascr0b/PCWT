@@ -1,6 +1,7 @@
 from flask import (
-	Blueprint, flash, g, redirect, render_template, request, session, escape, Markup, Response
+	Blueprint, flash, g, redirect, render_template, request, session, escape, Markup, Response, current_app
 )
+from threading import Thread
 from werkzeug.security import check_password_hash, generate_password_hash
 import json
 import markdown
@@ -9,9 +10,12 @@ import tldextract
 from bleach_whitelist import markdown_tags, markdown_attrs
 import uuid
 import re
-
+import os
 from app.auth import login_required
 from app.db import get_db
+from app.helpers import taskClass
+from app.cron import run, runMasscan, runNmap
+
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -307,11 +311,15 @@ def addHost():
 		portsq = 0
 		db.execute(
 			'INSERT INTO hosts (id, ip, note, style, portsq, project) VALUES (?, ?, ?, ?, ?, ?)',
-			(hostid, ip, "", "Default", portsq, project)
+			(hostid, ip, "", "New", portsq, project)
 		)
 	else:
 		hostid = hostCheck['id']
 		portsq = int(hostCheck['portsq'])
+		db.execute(
+			'UPDATE hosts SET style = ? WHERE id = ?',
+			("New", hostid)
+		)
 
 	for port in ports:
 		p = port['port']
@@ -324,6 +332,9 @@ def addHost():
 		state = "open"
 		service = port['service']
 		version = port['product']	
+
+		if p == "" or service == "":
+			return Response(json.dumps({"status": "IP, port and service are required."}), mimetype='application/json')	
 
 		if portcheck is None:
 			portsq = 1
@@ -352,6 +363,7 @@ def addHost():
 @login_required
 def addDomain():
 	db = get_db()
+
 	project = request.get_json()['project']
 	domain = request.get_json()['domain']
 	ip = request.get_json()['ip']
@@ -372,6 +384,18 @@ def addDomain():
 	if not ipre.match(ip) or not domainre.match(domain):
 		return Response(json.dumps({"status" : "Validation error"}), mimetype='application/json')
 
+	checkIfHostExists = db.execute(
+		'SELECT * FROM hosts WHERE project = ? and ip = ?', 
+		(project, ip, )
+	).fetchone()
+
+	if checkIfHostExists is None:
+		hostid = str(uuid.uuid4())
+		db.execute(
+			'INSERT INTO hosts (id, ip, note, style, portsq, project) VALUES (?, ?, ?, ?, ?, ?)',
+			(hostid, ip, "", "New", 0, project)
+		)
+
 	checkIfExists = db.execute(
 		'SELECT * FROM domains WHERE project = ? and domain = ?', 
 		(project, domain, )
@@ -383,7 +407,7 @@ def addDomain():
 		lvl = ext[1] + "." + ext[2]
 		db.execute(
 			'INSERT INTO domains (id, domain, lvl, ip, note, style, project) VALUES (?, ?, ?, ?, ?, ?, ?)',
-			(domainid, domain, lvl, ip, "", "Default", project)
+			(domainid, domain, lvl, ip, "", "New", project)
 		)	
 	else:
 		domainid = checkIfExists['id']
@@ -449,6 +473,7 @@ def delproject():
 	db.commit()
 	return Response(json.dumps({"status": "success"}), mimetype='application/json')
 
+
 @bp.route('/deleteuser', methods = ['POST'])
 @login_required
 def deluser():
@@ -496,8 +521,269 @@ def delete(db, projectid):
 		(projectid, )
 	)
 
+	# delete cron
+	db.execute(
+		'DELETE FROM crontab WHERE project = ?',
+		(projectid, )
+	)
+
 	# delete project
 	db.execute(
 		'DELETE FROM projects WHERE id = ?',
 		(projectid, )
 	)
+
+
+@bp.route('/editName', methods = ['POST'])
+@login_required
+def editName():
+	db = get_db()
+	projectid = request.get_json()['id']
+	name = request.get_json()['name']	
+
+	project = db.execute(
+		'SELECT id, name FROM projects WHERE id = ? and owner = ?',
+		(projectid, session['username'], )
+	).fetchone()
+
+	if not project:
+		return Response(json.dumps({"status": "not found"}), mimetype='application/json')
+
+	db.execute(
+		'UPDATE projects SET name = ? WHERE id = ?',
+		(name, projectid)
+	)	
+
+	db.commit()
+
+	return Response(json.dumps({"status": "success"}), mimetype='application/json')
+###########################################
+
+
+@bp.route('/subdomains', methods = ['POST'])
+@login_required
+def subdomains():
+	amass = current_app.config['AMASS']
+	findomain = current_app.config['FINDOMAIN']
+
+	if amass == "" or not os.path.isfile(amass):
+		return Response(json.dumps({"status": "Invalid amass path"}), mimetype='application/json')
+
+	if findomain == "" or not os.path.isfile(findomain):
+		return Response(json.dumps({"status": "Invalid findomain path"}), mimetype='application/json')	
+
+	db = get_db()
+	projectid = request.get_json()['id']
+	domain = request.get_json()['domain']	
+	period = request.get_json()['period']
+
+	project = db.execute(
+		'SELECT id, name FROM projects WHERE id = ? and owner = ?',
+		(projectid, session['username'], )
+	).fetchone()
+
+	if not project:
+		return Response(json.dumps({"status": "not found"}), mimetype='application/json')
+
+	if domain == "" or period == "":
+		return Response(json.dumps({"status": "validation error"}), mimetype='application/json')		
+
+	VALIDATEDOMAIN = "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])(\:([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))?$"
+	domainre = re.compile(VALIDATEDOMAIN)	
+
+	if not domainre.match(domain):
+		return Response(json.dumps({"status" : "validation error"}), mimetype='application/json')
+
+	if period not in ["1", "2", "3", "4", "5"]:
+		return Response(json.dumps({"status" : "validation error"}), mimetype='application/json')
+
+	taskid = str(uuid.uuid4())
+	status = 1
+
+	if period == "1":
+		status = 0
+
+	db.execute(
+		'INSERT INTO crontab (id, domain, period, status, project) VALUES (?, ?, ?, ?, ?)',
+		(taskid, domain, period, status, projectid)
+	)	
+
+	db.commit()
+	
+	task = {}
+	task['id'] = taskid
+	task['project'] = projectid
+	task['domain'] = domain
+	tasks = [task]
+
+	thread = Thread(target=run ,args=(tasks,))
+	thread.start()
+
+	return Response(json.dumps({"status": "success"}), mimetype='application/json')	
+
+
+@bp.route('/deleteCron', methods=['POST'])
+@login_required
+def deleteCron():
+	db = get_db()
+	cronid = request.get_json()['cronid']
+	check_access = db.execute(
+		'SELECT projects.owner FROM projects INNER JOIN crontab ON projects.id = crontab.project WHERE crontab.id = ?',
+		(cronid, )
+	).fetchone()
+
+	if not check_access or not cronid:
+		return Response(json.dumps({"status": "not found"}), mimetype='application/json')
+
+	if check_access['owner'] != session['username']:
+		return Response(json.dumps({"status": "not found"}), mimetype='application/json')
+
+	db.execute(
+		'DELETE FROM crontab WHERE id = ?',
+		(cronid, )
+	)
+
+	db.commit()
+	return Response(json.dumps({"status": "success"}), mimetype='application/json')	
+
+@bp.route('/statusCron', methods=['POST'])
+@login_required
+def statusCron():
+	db = get_db()
+
+	cronid = request.get_json()['cronid']
+	status = request.get_json()['status']
+
+	check_access = db.execute(
+		'SELECT projects.owner FROM projects INNER JOIN crontab ON projects.id = crontab.project WHERE crontab.id = ?',
+		(cronid, )
+	).fetchone()
+
+	if not check_access or not cronid or not status:
+		return Response(json.dumps({"status": "not found"}), mimetype='application/json')
+
+	if check_access['owner'] != session['username']:
+		return Response(json.dumps({"status": "not found"}), mimetype='application/json')
+
+	if status not in ["1", "0"]:
+		return Response(json.dumps({"status": "not found"}), mimetype='application/json')		
+
+	cron = db.execute(
+		'SELECT * FROM crontab WHERE id = ?',
+		(cronid, )
+	).fetchone()
+
+	if cron['period'] == "1":
+		return Response(json.dumps({"status": "not found"}), mimetype='application/json')
+
+	db.execute(
+		'UPDATE crontab SET status = ? WHERE id = ?',
+		(int(status), cronid)
+	)
+
+	db.commit()
+	return Response(json.dumps({"status": "success"}), mimetype='application/json')		
+
+###########################################
+
+@bp.route('/masscan', methods=['POST'])
+@login_required
+def masscan():
+	masscan = current_app.config['MASSCAN'].strip()
+	if masscan == "" or not os.path.isfile(masscan):
+		return Response(json.dumps({"status": "Invalid masscan path"}), mimetype='application/json')
+
+	db = get_db()
+	projectid = request.get_json()['id']
+	ips = request.get_json()['ips'].strip()
+	t = request.get_json()['type']
+
+	project = db.execute(
+		'SELECT id, name FROM projects WHERE id = ? and owner = ?',
+		(projectid, session['username'], )
+	).fetchone()
+
+	if not project:
+		return Response(json.dumps({"status": "not found"}), mimetype='application/json')
+
+	if t not in ["1","2","3"]:
+		return Response(json.dumps({"status": "Validation error"}), mimetype='application/json')	
+
+	if t == "1":
+		hosts = db.execute(
+			'SELECT DISTINCT ip FROM domains WHERE project = ? AND ip NOT IN \
+			(SELECT ip FROM hosts where project = ?)',
+			(projectid, projectid, )
+		).fetchall()
+		ips = ",".join(map(lambda x: x['ip'], hosts))
+	elif t == "2":
+		hosts = db.execute(
+			'SELECT ip FROM domains WHERE project = ? UNION SELECT ip FROM hosts WHERE project = ?',
+			(projectid, projectid, )
+		).fetchall()
+		ips = ",".join(set(map(lambda x: x['ip'], hosts)))
+	else:
+		if not checkips(ips):
+			return Response(json.dumps({"status": "Validation error"}), mimetype='application/json')
+
+	thread = Thread(target=runMasscan, args=(project['id'], project['name'], ips, t, ))
+	thread.start()
+	return Response(json.dumps({"status": "success"}), mimetype='application/json')
+
+
+@bp.route('/nmap', methods=['POST'])
+@login_required
+def nmap():
+	nmap = current_app.config['NMAP'].strip()
+	if nmap == "" or not os.path.isfile(nmap):
+		return Response(json.dumps({"status": "Invalid nmap path"}), mimetype='application/json')
+
+	db = get_db()
+	projectid = request.get_json()['id']
+	ips = request.get_json()['ips'].strip()
+	t = request.get_json()['type']
+
+	project = db.execute(
+		'SELECT id, name FROM projects WHERE id = ? and owner = ?',
+		(projectid, session['username'], )
+	).fetchone()
+
+	if not project:
+		return Response(json.dumps({"status": "not found"}), mimetype='application/json')
+
+	if t not in ["1","2","3"]:
+		return Response(json.dumps({"status": "Validation error"}), mimetype='application/json')	
+
+	if t == "1":
+		hosts = db.execute(
+			'SELECT DISTINCT ip FROM domains WHERE project = ? AND ip NOT IN \
+			(SELECT ip FROM hosts where project = ?)',
+			(projectid, projectid, )
+		).fetchall()
+		ips = list(map(lambda x: x['ip'], hosts))
+	elif t == "2":
+		hosts = db.execute(
+			'SELECT ip FROM domains WHERE project = ? UNION SELECT ip FROM hosts WHERE project = ?',
+			(projectid, projectid, )
+		).fetchall()
+		ips = list(set(map(lambda x: x['ip'], hosts)))
+	else:
+		if not checkips(ips):
+			return Response(json.dumps({"status": "Validation error"}), mimetype='application/json')
+		else:
+			ips = ips.split(',')	
+
+	thread = Thread(target=runNmap, args=(project['id'], project['name'], ips, t, ))
+	thread.start()
+	return Response(json.dumps({"status": "success"}), mimetype='application/json')
+
+
+def checkips(ips):
+	VALIDATEIP = "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))?$"
+	ipre = re.compile(VALIDATEIP)	
+
+	for ip in ips.split(','):
+		if not ipre.match(ip):
+			return False
+
+	return True		

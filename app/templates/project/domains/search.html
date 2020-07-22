@@ -6,12 +6,11 @@
 					<div class="form-inline">
 						<label class="mr-sm-2" for="sel1">Limit:</label>
 						<select class="custom-select form-control mb-2 mr-sm-2" id="sel1" onchange="window.location.href = '/project/domains?id={{ scan.id }}&limit=' + this.value + '&page=1&type={{ type }}&order={{ order }}&search={{ search }}'">
-							<option style="display: none;">0</option>
-							<option>10</option>
-							<option>20</option>
-							<option>30</option>
-							<option>50</option>
-							<option>100</option>
+							<option {% if limit == 10 %}selected{% endif %}>10</option>
+							<option {% if limit == 20 %}selected{% endif %}>20</option>
+							<option {% if limit == 30 %}selected{% endif %}>30</option>
+							<option {% if limit == 50 %}selected{% endif %}>50</option>
+							<option {% if limit == 100 %}selected{% endif %}>100</option>
 						</select>
 					</div>
 				</td>
@@ -19,12 +18,13 @@
 					<div class="form-inline">
 						<label class="mr-sm-2" for="sel2">Type:</label>
 						<select class="custom-select form-control mb-2 mr-sm-2" id="sel2" onchange="window.location.href = '/project/domains?id={{ scan.id }}&limit={{ limit }}&page=1&type=' + this.value + '&order={{ order }}&search={{ search }}'">
-							<option style="display: none;">None</option>
-							<option>Checked</option>
-							<option>Hacked</option>
-							<option>Suspicious</option>
-							<option>Default</option>
 							<option>All</option>
+							<option {% if type == "Checked" %}selected{% endif %}>Checked</option>
+							<option {% if type == "Hacked" %}selected{% endif %}>Hacked</option>
+							<option {% if type == "Suspicious" %}selected{% endif %}>Suspicious</option>
+							<option {% if type == "Default" %}selected{% endif %}>Default</option>
+							<option {% if type == "New" %}selected{% endif %}>New</option>
+							
 						</select>
 					</div>
 				</td>
@@ -32,9 +32,8 @@
 					<div class="form-inline">
 						<label class="mr-sm-2" for="sel2">Order:</label>
 						<select class="custom-select form-control mb-2 mr-sm-2" id="sel2" onchange="window.location.href = '/project/domains?id={{ scan.id }}&limit={{ limit }}&page=1&type={{ type }}&order=' + this.value + '&search={{ search }}'">
-							<option style="display: none;">None</option>
-							<option>IP</option>
-							<option>Domain</option>
+							<option {% if order == "IP" %}selected{% endif %}>IP</option>
+							<option {% if order == "Domain" %}selected{% endif %}>Domain</option>
 						</select>
 					</div>
 				</td>

@@ -1,13 +1,25 @@
 {% if  host.style == "Checked" %}
-	<h3 id="{{ host.id }}_hostStyle" >{{ host.ip }}	<span class="badge badge-pill badge-secondary">Checked</span> </h3>
+	<h3 id="{{ host.id }}_hostStyle" >{{ host.ip }}	
+		<span class="badge badge-pill badge-secondary">Checked</span>
+	</h3>
 {% endif %}
 
 {% if host.style == 'Hacked' %}
-	<h3 id="{{ host.id }}_hostStyle" >{{ host.ip }}	<span class="badge badge-pill badge-danger">Hacked</span> </h3>
+	<h3 id="{{ host.id }}_hostStyle" >{{ host.ip }}	
+		<span class="badge badge-pill badge-danger">Hacked</span> 
+	</h3>
 {% endif %}
 
 {% if host.style == 'Suspicious' %}
-	<h3 id="{{ host.id }}_hostStyle" >{{ host.ip }}	<span class="badge badge-pill badge-warning">Suspicious</span> </h3>
+	<h3 id="{{ host.id }}_hostStyle" >{{ host.ip }}	
+		<span class="badge badge-pill badge-warning">Suspicious</span> 
+	</h3>
+{% endif %}
+
+{% if host.style == 'New' %}
+	<h3 id="{{ host.id }}_hostStyle" >{{ host.ip }}	
+		<span class="badge badge-pill badge-success">New</span> 
+	</h3>
 {% endif %}
 
 {% if host.style == 'Default' %}

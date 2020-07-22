@@ -1,0 +1,48 @@
+<div class="row">
+	<div class="col-sm-2">
+		<h3 >
+			<a style="color: black" href="/cron/?id={{ project.id }}" >{{ project.name }}</a>
+		</h3>	
+	</div>
+	<div class="col-sm-2">
+		<div class="form-inline">
+		<label class="mr-sm-2" for="sel1">Status:</label>
+			<select class="custom-select form-control mb-2 mr-sm-2" id="sel1" onchange="window.location.href = '/cron/?id={{ project.id }}&status=' + this.value + '&period={{ period }}&limit={{ limit }}&page=1&search={{ search }}'">
+				<option>All</option>
+				<option {% if status == "On" %}selected{% endif %}>On</option>
+				<option {% if status == "Off" %}selected{% endif %}>Off</option>
+			</select>
+		</div>
+	</div>
+	<div class="col-sm-3">
+		<div class="form-inline">
+		<label class="mr-sm-2" for="sel1">Period:</label>
+			<select class="custom-select form-control mb-2 mr-sm-2" id="sel1" onchange="window.location.href = '/cron/?id={{ project.id }}&status={{ status }}&period=' + this.value + '&limit={{ limit }}&page=1&search={{ search }}'">
+				<option value="%">All</option>
+				<option {% if period == "1" %}selected{% endif %} value="1">Once</option>
+				<option {% if period == "2" %}selected{% endif %} value="2">Every 2 hours</option>
+				<option {% if period == "3" %}selected{% endif %} value="3">Every 5 hours</option>
+				<option {% if period == "4" %}selected{% endif %} value="4">Every day</option>
+				<option {% if period == "5" %}selected{% endif %} value="5">Every week</option>
+			</select>
+		</div>
+	</div>
+	<div class="col-sm-2">
+		<div class="form-inline">
+		<label class="mr-sm-2" for="sel1">Limit:</label>
+			<select class="custom-select form-control mb-2 mr-sm-2" id="sel1" onchange="window.location.href = '/cron/?id={{ project.id }}&status={{ status }}&period={{ period }}&limit=' + this.value + '&page=1&search={{ search }}'">
+				<option {% if limit == 10 %}selected{% endif %}>10</option>
+				<option {% if limit == 20 %}selected{% endif %}>20</option>
+				<option {% if limit == 30 %}selected{% endif %}>30</option>
+				<option {% if limit == 50 %}selected{% endif %}>50</option>
+				<option {% if limit == 100 %}selected{% endif %}>100</option>
+			</select>
+		</div>
+	</div>
+	<div class="col-sm-3">
+		<form class="form-inline" action="/cron/">
+			<input type="hidden" name="id" value="{{ project.id }}"> 
+		  	<input type="text" id="search" placeholder="Search" class="form-control mb-2 mr-sm-2" name="search">
+  		</form>
+	</div>
+</div>
