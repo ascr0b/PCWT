@@ -289,7 +289,7 @@ def deleteDomain():
 def addHost():
 	db = get_db()
 	project = request.get_json()['project']
-	ip = request.get_json()['ip']
+	ip = request.get_json()['ip'].strip()
 	ports = request.get_json()['ports']
 	errors = []
 
@@ -322,7 +322,7 @@ def addHost():
 		)
 
 	for port in ports:
-		p = port['port']
+		p = port['port'].strip()
 
 		portcheck = db.execute(
 			'SELECT * FROM ports WHERE host = ? and port = ?', 

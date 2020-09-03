@@ -162,54 +162,59 @@ def parseNmapFile(file, project, db):
 				("New", hostid)
 			)
 
+		try:
+			for port in host.find('ports').findall('port'):
+				if port.find('state').get('state') != 'open':
+					continue
 
-		for port in host.find('ports').findall('port'):
-			if port.find('state').get('state') != 'open':
-				continue
+				p = port.get('portid')
+				portcheck = db.execute(
+					'SELECT * FROM ports WHERE host = ? and port = ?', 
+					(hostid, p, )
+				).fetchone()
 
-			p = port.get('portid')
-			portcheck = db.execute(
-				'SELECT * FROM ports WHERE host = ? and port = ?', 
-				(hostid, p, )
-			).fetchone()
+				state = port.find('state').get('state')
+				
+				try:
+					service = port.find('service').get('name')
+				except Exception as e:
+					service = ""
+				
+				try:
+					version = port.find('service').get('product')
+				except Exception:
+					version = ""	
+				
+				try:
+					if port.find('service').get('version'):
+						version += " " + port.find('service').get('version')
+				except Exception as e:
+					version = ""
+				
 
-			state = port.find('state').get('state')
-			
-			try:
-				service = port.find('service').get('name')
-			except Exception as e:
-				service = ""
-			
-			try:
-				version = port.find('service').get('product')
-			except Exception:
-				version = ""	
-			
-			try:
-				if port.find('service').get('version'):
-					version += " " + port.find('service').get('version')
-			except Exception as e:
-				version = ""
-			
+				if portcheck is None:
+					portsq = 1
+					portid = str(uuid.uuid4())
+					db.execute(
+						'INSERT INTO ports (id, port, state, service, version, note, host) VALUES (?, ?, ?, ?, ?, ?, ?)',
+						(portid, p, state, service, version, "", hostid)
+					)
+				else:
+					db.execute(
+						'UPDATE ports SET service = ?, version = ? WHERE id = ?',
+						(service, version, portcheck['id'])
+					)
 
-			if portcheck is None:
-				portsq = 1
-				portid = str(uuid.uuid4())
-				db.execute(
-					'INSERT INTO ports (id, port, state, service, version, note, host) VALUES (?, ?, ?, ?, ?, ?, ?)',
-					(portid, p, state, service, version, "", hostid)
-				)
-			else:
-				db.execute(
-					'UPDATE ports SET service = ?, version = ? WHERE id = ?',
-					(service, version, portcheck['id'])
-				)
+			db.execute(
+				'UPDATE hosts SET portsq = ? WHERE id = ?',
+				(portsq, hostid)
+			)
+		except Exception as e:
+			continue
 		
 		
-		db.execute(
-			'UPDATE hosts SET portsq = ? WHERE id = ?',
-			(portsq, hostid)
-		)		
+		
+				
 
 
 def parseMasscanFile(file, project, db):
@@ -276,6 +281,19 @@ def parseDomainFile(file, project, db):
 
 		if not ipre.match(ip) or not domainre.match(domain):
 			continue
+
+		checkIfHostExists = db.execute(
+			'SELECT * FROM hosts WHERE project = ? and ip = ?', 
+			(project, ip, )
+		).fetchone()
+		
+		if checkIfHostExists is None:
+			hostid = str(uuid.uuid4())
+			db.execute(
+				'INSERT INTO hosts (id, ip, note, style, portsq, project) VALUES (?, ?, ?, ?, ?, ?)',
+				(hostid, ip, "", "New", 0, project)
+			)
+	
 		
 		checkIfExists = db.execute(
 			'SELECT * FROM domains WHERE project = ? and domain = ?', 
