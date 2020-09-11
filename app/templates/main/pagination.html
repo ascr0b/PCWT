@@ -3,7 +3,7 @@
 		{% if page == 1%}
 		<li class="page-item  disabled"><a class="page-link" href="">Previous</a></li>
 		{% else %}
-		<li class="page-item"><a class="page-link " href="/cron/?id={{ project.id }}&status={{ status }}&period={{ period }}&imit={{ limit }}&page={{ page - 1 }}&search={{ search }}">Previous</a></li>
+		<li class="page-item"><a class="page-link " href="/?imit={{ limit }}&page={{ page - 1 }}&search={{ search }}">Previous</a></li>
 		{% endif %}
 		
 
@@ -18,7 +18,7 @@
 				{% if i == page %}
 				<li class="page-item active"><a class="page-link " href="#">{{ i }}</a></li>
 				{% else %}
-				<li class="page-item "><a class="page-link " href="/cron/?id={{ project.id }}&status={{ status }}&period={{ period }}&imit={{ limit }}&page={{ i }}&search={{ search }}">{{ i }}</a></li>
+				<li class="page-item "><a class="page-link " href="/?imit={{ limit }}&page={{ i }}&search={{ search }}">{{ i }}</a></li>
 				{% endif %}
 			{% endfor %}
 		{% else %}
@@ -26,16 +26,16 @@
 				{% if i == page %}
 				<li class="page-item active"><a class="page-link " href="#">{{ i }}</a></li>
 				{% else %}
-				<li class="page-item "><a class="page-link " href="/cron/?id={{ project.id }}&status={{ status }}&period={{ period }}&imit={{ limit }}&page={{ i }}&search={{ search }}">{{ i }}</a></li>
+				<li class="page-item "><a class="page-link " href="/?limit={{ limit }}&page={{ i }}&search={{ search }}">{{ i }}</a></li>
 				{% endif %}
 			{% endfor %}
-			<li class="page-item "><a class="page-link " href="/cron/?id={{ project.id }}&status={{ status }}&period={{ period }}&imit={{ limit }}&page={{ start + 10 }}&search={{ search }}">...</a></li>
+			<li class="page-item "><a class="page-link " href="/?limit={{ limit }}&page={{ start + 10 }}&search={{ search }}">...</a></li>
 		{% endif %}	
 		
 		{% if page >= pages %}
 		<li class="page-item disabled"><a class="page-link" href="">Next</a></li>
 		{% else %}
-		<li class="page-item"><a class="page-link " href="/cron/?id={{ project.id }}&status={{ status }}&period={{ period }}&imit={{ limit }}&page={{ page + 1 }}&search={{ search }}">Next</a></li>
+		<li class="page-item"><a class="page-link " href="/?limit={{ limit }}&page={{ page + 1 }}&search={{ search }}">Next</a></li>
 		{% endif %}
 	</ul>
 </div>
