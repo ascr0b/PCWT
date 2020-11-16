@@ -77,7 +77,15 @@
 					</td>
 				</tr>
 				<tr>
-					<td>Export IPs from domains without NMAP/MASSCAN scan</td>
+					<td>Export IPs from hosts with open ports</td>
+					<td align="right">
+						<a href="/export/exportIPwithScan?id={{ projectid }}">
+							<button type="button" class="btn btn-outline-info">Export</button>
+						</a>
+					</td>
+				</tr>
+				<tr>
+					<td>Export IPs from hosts without open ports</td>
 					<td align="right">
 						<a href="/export/exportIPwithoutScan?id={{ projectid }}">
 							<button type="button" class="btn btn-outline-info">Export</button>

@@ -1,59 +1,64 @@
-### Classes for hosts dashboard
+# Classes for hosts dashboard
 class projectClass:
-	name = ""
-	description = ""
-	hosts = []
+    name = ""
+    description = ""
+    hosts = []
+
 
 class hostClass:
-	id = ""
-	ip = ""
-	note = ""
-	style = ""
-	ports = []
-	hostnames = []
+    id = ""
+    ip = ""
+    note = ""
+    style = ""
+    ports = []
+    hostnames = []
+
 
 class hostnameClass:
-	hostnameID = ""
-	hostname = ""	
-		
-class portClass:
-	id = ""
-	port = ""
-	state = ""
-	service = ""
-	version = ""
-	note = ""
-	
+    hostnameID = ""
+    hostname = ""
 
-### Classes for ports dashboard
+
+class portClass:
+    id = ""
+    port = ""
+    state = ""
+    service = ""
+    version = ""
+    note = ""
+
+
+# Classes for ports dashboard
 class portDashboardClass:
-	name = ""
-	description = ""
-	ports = []
+    name = ""
+    description = ""
+    ports = []
+
 
 class portMiniClass:
-	port = ""
-	amount = 0
-	hosts = []
+    port = ""
+    amount = 0
+    hosts = []
 
 
-### Classes for domain dashboard
+# Classes for domain dashboard
 class domainsDashboardClass:
-	id = ""
-	name = ""
-	domains = []
+    id = ""
+    name = ""
+    domains = []
+
 
 class domainClass:
-	id = ""
-	domain = ""
-	ip = ""
-	note = ""
-	style = ""
-	ports = []
+    id = ""
+    domain = ""
+    ip = ""
+    note = ""
+    style = ""
+    ports = []
 
 
-### Classess for crontab
+# Classess for crontab
 class taskClass:
-	id = ""
-	domain = ""
-	project = ""	
+    id = ""
+    domain = ""
+    project = ""
